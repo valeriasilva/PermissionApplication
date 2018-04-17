@@ -1,13 +1,10 @@
 package client.controller;
 
-import java.rmi.NotBoundException;
+import static client.util.Util.showMessage;
+
 import java.rmi.RemoteException;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JOptionPane;
 
 import client.service.ServiceLocator;
 import common.model.Feature;
@@ -17,9 +14,9 @@ import common.service.ServiceException;
 public class PluginController {
 
 	FeatureController featureController;
+	List<Plugin> plugins = new ArrayList<Plugin>();		
 
-	public void save(final String name, final String description)
-			throws SQLException, ParseException {
+	public void save(final String name, final String description) {
 		final Plugin plugin = new Plugin();
 		plugin.setName(name);
 		plugin.setDescription(description);
@@ -28,17 +25,14 @@ public class PluginController {
 			try {
 				ServiceLocator.getServer().savePlugin(plugin);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas na conexão remota com o servidor. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de salvar plugin. \n"+ e.getMessage());
 		}
 	}
 
-	public void update(final long id, final String name, final String description)
-			throws ParseException, SQLException {
+	public void update(final long id, final String name, final String description) {
 
 		final Plugin plugin = new Plugin();
 		plugin.setId(id);
@@ -53,28 +47,27 @@ public class PluginController {
 				e.printStackTrace();
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de atualizar plugin. \n"+ e.getMessage());
 		} 
 	}
 
 	public List<Plugin> listPlugins() {
-
+		plugins = new ArrayList<Plugin>();		
 		try {
 			try {
-				return ServiceLocator.getServer().findPlugins();
+				plugins = ServiceLocator.getServer().findPlugins();
+				return plugins;
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} catch (final ServiceException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			showMessage("Problemas na tentativa de listar plugins. \n"+ e1.getMessage());
 		}
-		return null;
+		return plugins;
 	}
 
-	public void delete(final long id) throws SQLException {
+	public void delete(final long id) {
 		try {
 			try {
 				ServiceLocator.getServer().deletePlugin(id);
@@ -83,24 +76,25 @@ public class PluginController {
 				e.printStackTrace();
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de excluir plugin. \n"+ e.getMessage());
 		}
 	}
 
-	public List<Plugin> searchPluginByName(final String name) throws SQLException {
+	public List<Plugin> searchPluginByName(final String name) {
+		plugins = new ArrayList<Plugin>();		
+
 		try {
 			try {
-				return ServiceLocator.getServer().findPluginByName(name);
+				plugins = ServiceLocator.getServer().findPluginByName(name);
+				return plugins;
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de buscar plugin por nome. \n"+ e.getMessage());
 		} 
-		return null;
+		return plugins;
 	}
 
 	public static Plugin findPluginById(final Long id) {
@@ -112,8 +106,7 @@ public class PluginController {
 				e.printStackTrace();
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de buscar plugin. \n"+ e.getMessage());
 		}
 		return null;
 	}

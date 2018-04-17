@@ -5,8 +5,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +14,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -28,6 +25,7 @@ import client.view.tablemodels.FeatureTableModel;
 import client.view.tablemodels.UserTableModel;
 import common.model.Feature;
 import common.model.User;
+import static client.util.Util.showMessage;
 
 public class PermissionApplication extends JFrame {
 
@@ -50,22 +48,16 @@ public class PermissionApplication extends JFrame {
 					final PermissionApplication window = new PermissionApplication();
 					window.frmPermissesDeFuncionalidades.setVisible(true);
 				} catch (final Exception e) {
-					e.printStackTrace();
+					showMessage("Problemas ao executar a aplicação. \n"+e.getMessage());
 				}
 			}
 		});
 	}
 
-	/**
-	 * Create the application.
-	 */
 	public PermissionApplication() {
 		initialize();
 	}
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	private void initialize() {
 		frmPermissesDeFuncionalidades = new JFrame();
 		frmPermissesDeFuncionalidades.setTitle("Permissões de Funcionalidades");
@@ -161,10 +153,9 @@ public class PermissionApplication extends JFrame {
 				} else {
 					final Long featureId = ftmodel.getFeature(tableFeaturesIndex).getId();
 					final Long userId = utmodel.getUser(tableUsersIndex).getId();
-						new PermissionController().delete(featureId, userId);
-						ftmodel.removeFeature(tableFeaturesIndex);
-						
-						showMessage("Permissão removida com sucesso");
+					new PermissionController().delete(featureId, userId);
+					ftmodel.removeFeature(tableFeaturesIndex);
+					showMessage("Permissão removida com sucesso");
 				}
 			}
 		});
@@ -210,7 +201,7 @@ public class PermissionApplication extends JFrame {
 
 	private TableModel getUserTableModel() { 
 		if (utmodel == null) {
-				utmodel = new UserTableModel(new UserController().listUsers());
+			utmodel = new UserTableModel(new UserController().listUsers());
 		}
 		return utmodel;
 	}
@@ -229,7 +220,6 @@ public class PermissionApplication extends JFrame {
 			showMessage("Selecione o usuário ao qual pretente atribuir nova permissão");
 		} else {
 			final User userSelected = utmodel.getUser(tableIndex);
-
 			final SetFeaturePermission windowToSetPermission = new SetFeaturePermission(userSelected, this);
 			windowToSetPermission.setVisible(true);
 		}
@@ -241,17 +231,11 @@ public class PermissionApplication extends JFrame {
 
 		if (tableIndex >= 0) {
 			final User userSelected = utmodel.getUser(tableIndex);
-
 			featuresPermitted = new PermissionController().listFeaturesPermittedFor(userSelected.getId());
-
 			ftmodel = new FeatureTableModel(featuresPermitted);
 			return ftmodel;
 		}
 		return ftmodel;
-	}
-
-	private void showMessage(final String msg) {
-		JOptionPane.showMessageDialog(null, msg);
 	}
 
 	public JTable getTable_users() {
@@ -285,5 +269,4 @@ public class PermissionApplication extends JFrame {
 	public void setFtmodel(final FeatureTableModel ftmodel) {
 		this.ftmodel = ftmodel;
 	}
-
 }

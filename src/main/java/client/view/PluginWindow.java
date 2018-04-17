@@ -132,14 +132,9 @@ public class PluginWindow extends JFrame {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				if (search_plugin.getText() != "") {
-					try {
-						pluginList = pluginController.searchPluginByName(search_plugin.getText());
-						ptmodel = null;
-						table_plugins.setModel(getPluginTableModel(pluginList));
-
-					} catch (final SQLException e1) {
-						e1.printStackTrace();
-					}
+					pluginList = pluginController.searchPluginByName(search_plugin.getText());
+					ptmodel = null;
+					table_plugins.setModel(getPluginTableModel(pluginList));
 				}
 			}
 		});
@@ -199,25 +194,14 @@ public class PluginWindow extends JFrame {
 	private void onClickSave() {
 		// Se a a variável plugin for null, trata-se de um insert
 		if (plugin == null) {
+			pluginController.save(name_plugin.getText(), description_plugin.getText());
+			ptmodel = null;
+			table_plugins.setModel(getPluginTableModel());
 
-			try {
-				pluginController.save(name_plugin.getText(), description_plugin.getText());
-				ptmodel = null;
-				table_plugins.setModel(getPluginTableModel());
-
-				showMessage("Plugin salvo com sucesso!");
-				clearFields();
-			} catch (final SQLException e) {
-				showMessage("Nao foi possivel salvar Plugin\n" +
-						"Verifique os campos");
-				System.out.println(e.getLocalizedMessage());
-			} catch (final ParseException e) {
-				showMessage("Data possui formato inválido\n" +
-						e.getLocalizedMessage());
-			}
+			showMessage("Plugin salvo com sucesso!");
+			clearFields();
 		} else {
 			// se a variável plugin não for nula, trata-se de um update
-
 			plugin.setName(name_plugin.getText());
 			plugin.setDescription(description_plugin.getText());
 
@@ -226,7 +210,6 @@ public class PluginWindow extends JFrame {
 			table_plugins.setModel(getPluginTableModel());
 			clearFields();
 		}
-
 	}
 
 	private TableModel getPluginTableModel(final List<Plugin> pList) {
@@ -260,19 +243,11 @@ public class PluginWindow extends JFrame {
 			showMessage("Selecione um  Plugin para remover");
 		} else {
 			plugin = ptmodel.getPlugin(tableIndex);
-
-			try {
-				pluginController.delete(plugin.getId());
-				clearFields();
-				ptmodel.removePlugin(tableIndex);
-				plugin = null;
-				showMessage("Plugin removido com sucesso");
-			} catch (final SQLIntegrityConstraintViolationException e) {
-				showMessage("Há Funcionalidades associadas a este Plugin");
-			} catch (final SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pluginController.delete(plugin.getId());
+			clearFields();
+			ptmodel.removePlugin(tableIndex);
+			plugin = null;
+			showMessage("Plugin removido com sucesso");
 		}
 	}
 
@@ -282,11 +257,7 @@ public class PluginWindow extends JFrame {
 	}
 
 	private void updatePlugin(final Plugin p) {
-		try {
-			pluginController.update(p.getId(), p.getName(), p.getDescription());
-		} catch (ParseException | SQLException e) {
-			e.printStackTrace();
-		}
+		pluginController.update(p.getId(), p.getName(), p.getDescription());
 	}
 
 	private void fillFields() {
@@ -305,8 +276,7 @@ public class PluginWindow extends JFrame {
 			return p;
 		} else
 			showMessage("Selecione um Plugin");
-		return null;
-
+		return p;
 	}
 
 	private void newPlugin() {

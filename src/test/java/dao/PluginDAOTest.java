@@ -1,6 +1,5 @@
 package dao;
 
-import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import org.junit.Assert;
@@ -19,18 +18,14 @@ public class PluginDAOTest {
 	int featureIdGenerated = 0;
 
 	@Before
-	public void createsTestScenario() throws SQLException {
+	public void createsTestScenario() {
 		insertPluginInDataBase();
 		insertFeatureByPlugin();
 	}
 
 	@Test
 	public void shouldInsertPluginInDataBase() {
-		try {
-			insertPluginInDataBase();
-		} catch (SQLException e) {
-			System.out.println("Não foi possível inserir plugin "+ e.getStackTrace());
-		}
+		insertPluginInDataBase();
 
 		Assert.assertTrue(pluginIdGenarated > 0);
 	}
@@ -39,11 +34,6 @@ public class PluginDAOTest {
 	public void shouldSelectPluginsFromDataBase(){
 		try {
 			insertPluginInDataBase();
-		} catch (SQLException e1) {
-			System.out.println("Não foi possível retornar plugins "+ e1.getStackTrace());
-		}
-
-		try {
 			Assert.assertNotNull(new PluginDAO().findPlugins().get(0));
 		} catch (ServerException e) {
 			// TODO Auto-generated catch block
@@ -51,7 +41,7 @@ public class PluginDAOTest {
 		}
 	}
 
-	public void insertPluginInDataBase() throws SQLException {
+	public void insertPluginInDataBase() {
 		final Plugin plugin = new Plugin();
 
 		plugin.setName("Plugin test");
@@ -69,7 +59,7 @@ public class PluginDAOTest {
 		Assert.assertTrue(pluginIdGenarated > 0);
 	}
 
-	public void insertFeatureByPlugin() throws SQLException {
+	public void insertFeatureByPlugin() {
 		final Feature feature = new Feature();
 
 		feature.setName("Feature Teste");

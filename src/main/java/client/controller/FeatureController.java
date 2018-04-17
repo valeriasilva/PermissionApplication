@@ -1,21 +1,20 @@
 package client.controller;
 
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.sql.SQLException;
-import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JOptionPane;
 
 import client.service.ServiceLocator;
 import common.model.Feature;
 import common.service.ServiceException;
 
-public class FeatureController {
+import static client.util.Util.showMessage;
 
-	public void save(final String name, final String description, final Long idPlugin)
-			throws SQLException, ParseException {
+public class FeatureController {
+	
+	List<Feature> featureList = new ArrayList<Feature>();
+
+	public void save(final String name, final String description, final Long idPlugin){
 		final Feature feature = new Feature();
 		feature.setName(name);
 		feature.setDescription(description);
@@ -25,17 +24,14 @@ public class FeatureController {
 			try {
 				ServiceLocator.getServer().saveFeature(feature);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de adicionar funcionalidade. \n"+ e.getMessage());
 		}
 	}
 
-	public void update(final long id, final String name, final String description)
-			throws ParseException, SQLException {
+	public void update(final long id, final String name, final String description) {
 
 		final Feature feature = new Feature();
 		feature.setId(id);
@@ -46,103 +42,98 @@ public class FeatureController {
 			try {
 				ServiceLocator.getServer().updateFeature(feature);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de atualizar funcionalidade. \n"+ e.getMessage());
 		} 
 	}
 
 	public List<Feature> listFeatures() {
+		featureList = new ArrayList<Feature>();
 		try {
-
 			try {
-				return ServiceLocator.getServer().findAllFeatures();
+				featureList = ServiceLocator.getServer().findAllFeatures();
+				return featureList;
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de listar funcionalidades. \n"+ e.getMessage());
 		} 
-		return null;
+		return featureList;
 	}
 
-	public void delete(final long id) throws SQLException {
+	public void delete(final long id) {
 		try {
 			try {
 				ServiceLocator.getServer().deleteFeature(id);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de excluir funcionalidade. \n"+ e.getMessage());
 		} 
 	}
 
 	public List<Feature> searchFeatureByName(final String text) {
+		featureList = new ArrayList<Feature>();
 		try {
 			try {
-				return ServiceLocator.getServer().findFeatureByName(text);
+				featureList = ServiceLocator.getServer().findFeatureByName(text);
+				return featureList;
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de buscar funcionalidades pelo nome. \n"+ e.getMessage());
 		} 
-		return null;
+		return featureList;
 	}
 
 	public List<Feature> searchFeatureNotPermittedByName(final String name, final Long userId) {
+		featureList = new ArrayList<Feature>();
 		try {
 			try {
-				return ServiceLocator.getServer().findFeatureNotPermittedByName(name, userId);
+				featureList = ServiceLocator.getServer().findFeatureNotPermittedByName(name, userId);
+				return featureList;
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de buscar funcionalidades permitidas. \n"+ e.getMessage());
 		}
-		return null;
+		return featureList;
 	}
 
 	public List<Feature> getFeaturesByPlugin(final Long idPlugin) {
+		featureList = new ArrayList<Feature>();
 		try {
 			try {
-				return ServiceLocator.getServer().findFeaturesByPlugin(idPlugin);
+				featureList = ServiceLocator.getServer().findFeaturesByPlugin(idPlugin);
+				return featureList;
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de buscar funcionalidades por plugin. \n"+ e.getMessage());
 		}
 
-		return null;
+		return featureList;
 	}
 
 	public List<Feature> listFeaturesSelectedUserHasNoPermission(final Long userId) {
+		featureList = new ArrayList<Feature>();
 		try {
 			try {
-				return ServiceLocator.getServer().findFeatureUserHasNoPermission(userId);
+				featureList = ServiceLocator.getServer().findFeatureUserHasNoPermission(userId);
+				return featureList;
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de listar funcionalidades sem permissão atribuída. \n"+ e.getMessage());
 		}
-		return null;
+		return featureList;
 	}
 }

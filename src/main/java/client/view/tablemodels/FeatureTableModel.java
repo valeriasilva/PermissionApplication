@@ -54,7 +54,7 @@ public class FeatureTableModel extends AbstractTableModel {
 		case PLUGIN:
 			return String.class;
 		default:
-			throw new IndexOutOfBoundsException("columnIndex out of bounds");
+			throw new IndexOutOfBoundsException("Coluna da tabela de Funcionalidades fora do limite de colunas. \n columnIndex out of bounds");
 		}
 	}
 
@@ -75,33 +75,9 @@ public class FeatureTableModel extends AbstractTableModel {
 			else
 				return "";
 		default:
-			throw new IndexOutOfBoundsException("columnIndex out of bounds");
+			throw new IndexOutOfBoundsException("Coluna da tabela de Funcionalidades fora do limite de colunas. \ncolumnIndex out of bounds");
 		}
 	}
-
-	// @Override
-	// public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
-	// final Feature Feature = rows.get(rowIndex);
-	//
-	// switch (columnIndex) {
-	// case NAME:
-	// Feature.setName((String) aValue);
-	// break;
-	// case DESCRIPTION:
-	// Feature.setDescription((String) aValue);
-	// break;
-	// case CREATIONDATE:
-	// Feature.setCreationDate((Date) aValue);
-	// break;
-	// case PLUGIN:
-	// Feature.setPlugin((Plugin) aValue);
-	// break;
-	// default:
-	// throw new IndexOutOfBoundsException("columnIndex out of bounds");
-	// }
-	//
-	// fireTableCellUpdated(rowIndex, columnIndex);
-	// }
 
 	public Feature getFeature(final int indiceLinha) {
 		return rows.get(indiceLinha);

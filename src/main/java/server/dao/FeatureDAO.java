@@ -12,46 +12,36 @@ import common.model.Plugin;
 
 public class FeatureDAO extends GenericDAO {
 
+	public FeatureDAO() throws ServerException {
+	}
+
 	public int saveFeature(final Feature feature)  throws ServerException {
 		final String insert = "INSERT INTO Feature (name, description, creationDate, plugin_id) VALUES(?,?,?,?)";
-		try {
-			return save(insert, feature.getName(), feature.getDescription(), feature.getCreationDate(),
-					feature.getPlugin().getId().intValue());
-		} catch (SQLException e) {
-			throw new ServerException("Não foi possível salvar funcionalidade "+ e.getMessage());
-		}
+		return save(insert, feature.getName(), feature.getDescription(), feature.getCreationDate(),
+				feature.getPlugin().getId().intValue());
 	}
 
 	public void updateFeature(final Feature feature) throws ServerException {
 		final String update = "UPDATE Feature " +
 				"SET name = ?, description = ? " +
 				"WHERE id = ?";
-		try {
-			update(update, feature.getId(), feature.getName(), feature.getDescription());
-		} catch (SQLException e) {
-			throw new ServerException("Não foi possível atualizar funcionalidade "+ e.getMessage());
-		}
+		update(update, feature.getId(), feature.getName(), feature.getDescription());
 	}
 
 	public void deleteFeature(final long id) throws ServerException {
 		final String delete = "DELETE FROM Feature WHERE id = ?";
-		try {
-			delete(delete, id);
-		} catch (SQLException e) {
-			throw new ServerException("Não foi possível excluir funcionalidade "+ e.getMessage());
-		}
+		delete(delete, id);
 	}
 
 	public List<Feature> findAllFeatures() throws ServerException {
 		final List<Feature> features = new ArrayList<Feature>();
 
 		final String select = "SELECT * FROM Feature";
-
-		PreparedStatement stmt;
-
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
 		try {
 			stmt = getConnection().prepareStatement(select);
-			final ResultSet rs = stmt.executeQuery();
+			rs = stmt.executeQuery();
 
 			while (rs.next()) {
 				final Feature feature = new Feature();
@@ -66,14 +56,18 @@ public class FeatureDAO extends GenericDAO {
 				feature.setCreationDate(rs.getTimestamp("creationDate"));
 				features.add(feature);
 			}
-
-			rs.close();
-			stmt.close();
-			getConnection().close();
 		} catch (SQLException e) {
 			throw new ServerException("Não foi possível buscar funcionalidades "+ e.getMessage());
+		}finally {
+			try {
+				rs.close();
+				stmt.close();
+				getConnection().close();
+			} catch (SQLException e) {
+				//Log
+				e.getStackTrace();
+			}
 		}
-
 		return features;
 	}
 
@@ -81,13 +75,13 @@ public class FeatureDAO extends GenericDAO {
 		final String select = "SELECT * FROM Feature WHERE name LIKE ?";
 		Feature feature = null;
 		final List<Feature> features = new ArrayList<Feature>();
-
-		PreparedStatement stmt;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
 		try {
 			stmt = getConnection().prepareStatement(select);
 
 			stmt.setString(1, '%' + name + '%');
-			final ResultSet rs = stmt.executeQuery();
+			rs = stmt.executeQuery();
 
 			while (rs.next()) {
 				feature = new Feature();
@@ -102,29 +96,30 @@ public class FeatureDAO extends GenericDAO {
 				feature.setCreationDate(rs.getTimestamp("creationDate"));
 				features.add(feature);
 			}
-
-			rs.close();
-			stmt.close();
-			getConnection().close();
-
 		} catch (SQLException e) {
 			throw new ServerException("Não foi possível buscar funcionalidades "+ e.getMessage());
+		}finally {
+			try {
+				rs.close();
+				stmt.close();
+				getConnection().close();
+			} catch (SQLException e) {
+				//Log
+				e.getStackTrace();
+			}
 		}
-
 		return features;
 	}
 
 	public Feature findFeatureById(final Long featureId) throws ServerException {
 		final Feature feature = new Feature();
 		final String select = "SELECT * FROM Feature WHERE id = ?";
-
-		PreparedStatement stmt;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
 		try {
 			stmt = getConnection().prepareStatement(select);
-
 			stmt.setLong(1, featureId);
-
-			final ResultSet rs = stmt.executeQuery();
+			rs = stmt.executeQuery();
 
 			while (rs.next()) {
 				Plugin plugin = new Plugin();
@@ -137,14 +132,18 @@ public class FeatureDAO extends GenericDAO {
 				feature.setDescription(rs.getString("description"));
 				feature.setCreationDate(rs.getTimestamp("creationDate"));
 			}
-
-			rs.close();
-			stmt.close();
-			getConnection().close();
 		} catch (SQLException e) {
 			throw new ServerException("Não foi possível buscar funcionalidades "+ e.getMessage());
+		}finally {
+			try {
+				rs.close();
+				stmt.close();
+				getConnection().close();
+			} catch (SQLException e) {
+				//Log
+				e.getStackTrace();
+			}
 		}
-
 		return feature;
 	}
 
@@ -152,15 +151,12 @@ public class FeatureDAO extends GenericDAO {
 		final String select = "SELECT * FROM Feature WHERE plugin_id = ?";
 		Feature feature = null;
 		final List<Feature> features = new ArrayList<Feature>();
-
-		PreparedStatement stmt;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
 		try {
 			stmt = getConnection().prepareStatement(select);
-
 			stmt.setLong(1, idPlugin);
-
-			final ResultSet rs = stmt.executeQuery();
-
+			rs = stmt.executeQuery();
 			while (rs.next()) {
 				feature = new Feature();
 				Plugin plugin = new Plugin();
@@ -174,15 +170,18 @@ public class FeatureDAO extends GenericDAO {
 				feature.setCreationDate(rs.getTimestamp("creationDate"));
 				features.add(feature);
 			}
-
-			rs.close();
-			stmt.close();
-			getConnection().close();
-
 		} catch (SQLException e) {
 			throw new ServerException("Não foi possível buscar funcionalidades pelo Plugin"+ e.getMessage());
+		}finally {
+			try {
+				rs.close();
+				stmt.close();
+				getConnection().close();
+			} catch (SQLException e) {
+				//Log
+				e.getStackTrace();
+			}
 		}
-
 		return features;
 	}
 }

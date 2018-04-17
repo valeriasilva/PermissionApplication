@@ -110,8 +110,7 @@ public class SetFeaturePermission extends JDialog {
 										new PermissionController().listFeaturesPermittedFor(userSelected.getId()));
 								mainWindow.getTable_featuresPermission().setModel(ftmodel);
 							}
-							
-							 catch (final ParseException e1) {
+							catch (final ParseException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
@@ -135,7 +134,6 @@ public class SetFeaturePermission extends JDialog {
 				buttonPane.add(cancelButton);
 			}
 		}
-
 	}
 
 	private FeatureTableModel getFeatureTableModel() {
@@ -184,5 +182,4 @@ public class SetFeaturePermission extends JDialog {
 	public void setLabel_userSelected(final JLabel label_userSelected) {
 		this.label_userSelected = label_userSelected;
 	}
-
 }

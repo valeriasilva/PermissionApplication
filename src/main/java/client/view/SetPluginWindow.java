@@ -39,26 +39,6 @@ public class SetPluginWindow extends JDialog {
 	private Action searchAction;
 	private Action saveAction;
 
-	// /**
-	// * Launch the application.
-	// */
-	// public static void main(final String[] args) {
-	// EventQueue.invokeLater(new Runnable() {
-	// @Override
-	// public void run() {
-	// try {
-	// final SetPluginWindow frame = new SetPluginWindow();
-	// frame.setVisible(true);
-	// } catch (final Exception e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// });
-	// }
-
-	/**
-	 * Create the frame.
-	 */
 	public SetPluginWindow() {
 		buildGUI();
 	}
@@ -78,13 +58,13 @@ public class SetPluginWindow extends JDialog {
 		search_plugin_feature = new JTextField();
 
 		final JButton searchBtn = new JButton(getSearchAction());
-		
+
 		table_plugins = new JTable(getPluginTableModel());
 
 		final JButton loadButton = new JButton(getLoadTableAction());
 
 		final JButton selectBtn = new JButton(getSaveAction());
-		
+
 		contentPane = new JPanel(new MigLayout("", "[grow][][]", "[][grow][]"));
 		contentPane.add(search_plugin_feature, "grow");
 		contentPane.add(searchBtn, "sg btns");
@@ -114,14 +94,9 @@ public class SetPluginWindow extends JDialog {
 				public void actionPerformed(final ActionEvent e) {
 					final String searchString = search_plugin_feature.getText();
 					if (searchString.isEmpty() != true) {
-						try {
-							pluginList = pluginController.searchPluginByName(searchString);
-							ptmodel = null;
-							table_plugins.setModel(getPluginTableModel(pluginList));
-
-						} catch (final SQLException e1) {
-							e1.printStackTrace();
-						}
+						pluginList = pluginController.searchPluginByName(searchString);
+						ptmodel = null;
+						table_plugins.setModel(getPluginTableModel(pluginList));
 					}
 				}
 			};
@@ -165,7 +140,6 @@ public class SetPluginWindow extends JDialog {
 			plugin = ptmodel.getPlugin(tableIndex);
 			this.setVisible(false);
 		}
-
 	}
 
 	public Plugin getPluginSelected() {
@@ -183,5 +157,4 @@ public class SetPluginWindow extends JDialog {
 	public void setPlugin(final Plugin plugin) {
 		this.plugin = plugin;
 	}
-
 }

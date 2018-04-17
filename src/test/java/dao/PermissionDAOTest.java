@@ -25,7 +25,12 @@ public class PermissionDAOTest {
 
 	@BeforeClass
 	public static void testGettingConnection() {
-		Assert.assertNotNull(DBAccess.createDBConnection());
+		try {
+			Assert.assertNotNull(DBAccess.createDBConnection());
+		} catch (ServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Before

@@ -3,12 +3,9 @@ package client.view;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -16,20 +13,17 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-
 import client.controller.FeatureController;
 import client.util.Util;
 import client.view.tablemodels.FeatureTableModel;
 import common.model.Feature;
 import net.miginfocom.swing.MigLayout;
+import static client.util.Util.showMessage;
 
 public class FeatureWindow extends JFrame {
 
@@ -192,29 +186,21 @@ public class FeatureWindow extends JFrame {
 	private void onClickSave() {
 		// Se a a variável feature for null, trata-se de um insert
 		if (feature == null) {
-
 			if (setPluginWindow.getPlugin() == null)
 				showMessage("Informe o Plugin ao qual esta Funcionalidade pertence");
 			else {
 				final Long idPlugin = setPluginWindow.getPlugin().getId();
-				try {
-					featureController.save(featureNameField.getText(), featureDescriptionArea.getText(), idPlugin);
-					ftmodel = null;
-					table.setModel(getFeatureTableModel());
 
-					JOptionPane.showMessageDialog(null, "Funcionalidade salva com sucesso!");
-					clearFields();
-				} catch (final SQLException e) {
-					showMessage("Nao foi possivel salvar Funcionalidade\n" + "Verifique os campos"
-							+ e.getLocalizedMessage());
-				} catch (final ParseException e) {
-					showMessage("Data possui formato inválido\n" + e.getLocalizedMessage());
-				}
+				featureController.save(featureNameField.getText(), featureDescriptionArea.getText(), idPlugin);
+				ftmodel = null;
+				table.setModel(getFeatureTableModel());
+
+				showMessage("Funcionalidade salva com sucesso!");
+				
+				clearFields();
 			}
-
 		} else {
 			// se a variável feature não for nula, trata-se de um update
-
 			feature.setName(featureNameField.getText());
 			feature.setDescription(featureDescriptionArea.getText());
 
@@ -223,7 +209,6 @@ public class FeatureWindow extends JFrame {
 			ftmodel = null;
 			table.setModel(getFeatureTableModel());
 		}
-
 	}
 
 	private void deleteFeature() {
@@ -234,27 +219,15 @@ public class FeatureWindow extends JFrame {
 		} else {
 			feature = ftmodel.getFeature(tableIndex);
 
-			try {
-				featureController.delete(feature.getId());
-				clearFields();
-				ftmodel.removeFeature(tableIndex);
-				showMessage("Funcionalidade removida com sucesso");
-			} catch (final SQLException e) {
-				e.printStackTrace();
-			}
+			featureController.delete(feature.getId());
+			clearFields();
+			ftmodel.removeFeature(tableIndex);
+			showMessage("Funcionalidade removida com sucesso");
 		}
 	}
 
 	private void updateFeature(final Feature f) {
-		try {
-			featureController.update(f.getId(), f.getName(), f.getDescription());
-		} catch (ParseException | SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void showMessage(final String msg) {
-		JOptionPane.showMessageDialog(null, msg);
+		featureController.update(f.getId(), f.getName(), f.getDescription());
 	}
 
 	private void fillFields() {

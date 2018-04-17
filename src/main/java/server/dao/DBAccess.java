@@ -9,7 +9,7 @@ public class DBAccess {
 	private static final String USER = "candidato";
 	private static final String PASS = "candidato";
 
-	public static Connection createDBConnection() {
+	public static Connection createDBConnection() throws ServerException {
 		try {
 			Class.forName(DRIVER_CLASS);
 		} catch (final ClassNotFoundException e) {
@@ -17,14 +17,15 @@ public class DBAccess {
 			System.exit(1);
 		}
 		try {
-			return DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", USER, PASS);
+			Connection connection = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", USER, PASS);
+			connection.setAutoCommit(false);
+			return connection;
 		} catch (final Exception e) {
-			System.out.println("ERRO " + e.getMessage());
+			throw new ServerException("ERRO: Não foi possivel pegar a conexão:" + e.getMessage());
 		}
-		return null;
 	}
 
-	public static Connection createDBConnection(final String driver_class, final String user, final String pass) {
+	public static Connection createDBConnection(final String driver_class, final String user, final String pass) throws ServerException {
 		try {
 			Class.forName(driver_class);
 		} catch (final ClassNotFoundException e) {
@@ -32,10 +33,11 @@ public class DBAccess {
 			System.exit(1);
 		}
 		try {
-			return DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", user, pass);
+			Connection connection = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", user, pass);
+			connection.setAutoCommit(false);
+			return connection;
 		} catch (final Exception e) {
-			System.out.println("ERRO " + e.getMessage());
+			throw new ServerException("ERRO: Não foi possivel pegar a conexão:" + e.getMessage());
 		}
-		return null;
 	}
 }

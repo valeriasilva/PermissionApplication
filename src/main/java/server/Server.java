@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.SQLException;
 import java.util.List;
 
 import common.model.Feature;
@@ -43,20 +44,29 @@ public class Server implements ServerInterface {
 	 */
 	@Override
 	public List<User> getUsers() throws ServiceException {
-		final UserDAO userDao = new UserDAO();
-		List<User> users = null;
+		UserDAO userDao;
 		try {
-			users = userDao.findUsers();
-		} catch (ServerException e) {
-			throw new ServiceException("Falha ao buscar usuários. " + e.getMessage());
+			userDao = new UserDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Problemas ao conectar com a base de dados. " + e1.getMessage());
 		}
-
+		List<User> users = null;
+			try {
+				users = userDao.findUsers();
+			} catch (SQLException e) {
+				throw new ServiceException("Falha ao buscar usuários. " + e.getMessage());
+			}
 		return users;
 	}
 
 	@Override
 	public List<User> getUsersByName(final String name) throws ServiceException {
-		final UserDAO userDao = new UserDAO();
+		UserDAO userDao;
+		try {
+			userDao = new UserDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			return userDao.findUsersByName(name);
 		} catch (ServerException e) {
@@ -65,14 +75,18 @@ public class Server implements ServerInterface {
 	}
 
 	/**
-	 * Métodos referentes as Funcionalidades
+	 * Métodos referentes às Funcionalidades
 	 * 
 	 * @throws RemoteException
 	 *             .
 	 */
 	@Override
 	public void saveFeature(final Feature feature) throws ServiceException {
-		featureDao = new FeatureDAO();
+		try {
+			featureDao = new FeatureDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			featureDao.saveFeature(feature);
 		} catch (ServerException e) {
@@ -82,7 +96,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public void updateFeature(final Feature feature) throws ServiceException {
-		featureDao = new FeatureDAO();
+		try {
+			featureDao = new FeatureDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			featureDao.updateFeature(feature);
 		} catch (ServerException e) {
@@ -92,7 +110,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public void deleteFeature(final long id) throws ServiceException {
-		featureDao = new FeatureDAO();
+		try {
+			featureDao = new FeatureDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			featureDao.deleteFeature(id);
 		} catch (ServerException e) {
@@ -102,7 +124,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public List<Feature> findFeatureByName(final String name) throws ServiceException {
-		featureDao = new FeatureDAO();
+		try {
+			featureDao = new FeatureDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			return featureDao.findFeatureByName(name);
 		} catch (ServerException e) {
@@ -112,7 +138,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public List<Feature> findAllFeatures() throws ServiceException {
-		featureDao = new FeatureDAO();
+		try {
+			featureDao = new FeatureDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			return featureDao.findAllFeatures();
 		} catch (ServerException e) {
@@ -122,7 +152,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public List<Feature> findFeaturesByPlugin(final Long idPlugin) throws ServiceException {
-		featureDao = new FeatureDAO();
+		try {
+			featureDao = new FeatureDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			return featureDao.findFeaturesByPlugin(idPlugin);
 		} catch (ServerException e) {
@@ -138,7 +172,11 @@ public class Server implements ServerInterface {
 	 */
 	@Override
 	public void savePlugin(final Plugin plugin) throws ServiceException {
-		pluginDao = new PluginDAO();
+		try {
+			pluginDao = new PluginDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			pluginDao.savePlugin(plugin);
 		} catch (ServerException e) {
@@ -149,7 +187,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public void updatePlugin(final Plugin plugin) throws ServiceException {
-		pluginDao = new PluginDAO();
+		try {
+			pluginDao = new PluginDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			pluginDao.updatePlugin(plugin);
 		} catch (ServerException e) {
@@ -160,7 +202,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public void deletePlugin(final long id) throws ServiceException {
-		pluginDao = new PluginDAO();
+		try {
+			pluginDao = new PluginDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			pluginDao.deletePlugin(id);
 		} catch (ServerException e) {
@@ -170,7 +216,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public List<Plugin> findPlugins() throws ServiceException {
-		pluginDao = new PluginDAO();
+		try {
+			pluginDao = new PluginDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			return pluginDao.findPlugins();
 		} catch (ServerException e) {
@@ -180,7 +230,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public Plugin findPluginById(final Long idPlugin) throws ServiceException {
-		pluginDao = new PluginDAO();
+		try {
+			pluginDao = new PluginDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			return pluginDao.findPluginById(idPlugin);
 		} catch (ServerException e) {
@@ -190,7 +244,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public List<Plugin> findPluginByName(final String name) throws ServiceException {
-		pluginDao = new PluginDAO();
+		try {
+			pluginDao = new PluginDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			return pluginDao.findByName(name);
 		} catch (ServerException e) {
@@ -206,7 +264,11 @@ public class Server implements ServerInterface {
 	 */
 	@Override
 	public List<Feature> findFeaturesPermittedFor(final Long userId) throws ServiceException {
-		permissionDao = new PermissionDAO();
+		try {
+			permissionDao = new PermissionDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			return permissionDao.findFeaturesPermittedForUser(userId);
 		} catch (ServerException e) {
@@ -216,7 +278,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public List<Feature> findFeatureUserHasNoPermission(final Long userId) throws ServiceException {
-		permissionDao = new PermissionDAO();
+		try {
+			permissionDao = new PermissionDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			return permissionDao.findFeaturesNotPermittedFor(userId);
 		} catch (ServerException e) {
@@ -226,7 +292,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public List<Feature> findFeatureNotPermittedByName(final String name, final Long userId) throws ServiceException {
-		permissionDao = new PermissionDAO();
+		try {
+			permissionDao = new PermissionDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			return permissionDao.findFeaturesNotPermittedByName(name, userId);
 		} catch (ServerException e) {
@@ -236,7 +306,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public void deletePermission(final long featureid, final long userId) throws ServiceException {
-		permissionDao = new PermissionDAO();
+		try {
+			permissionDao = new PermissionDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			permissionDao.deletePermission(featureid, userId);
 		} catch (ServerException e) {
@@ -247,7 +321,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public boolean verifyExistingPermission(final Long userId, final Long featureId) throws ServiceException {
-		permissionDao = new PermissionDAO();
+		try {
+			permissionDao = new PermissionDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			return permissionDao.IsTherePermissionByFeatureAndUser(userId, featureId);
 		} catch (ServerException e) {
@@ -257,7 +335,11 @@ public class Server implements ServerInterface {
 
 	@Override
 	public void savePermission(final Long userId, final Long featureId) throws ServiceException {
-		permissionDao = new PermissionDAO();
+		try {
+			permissionDao = new PermissionDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException("Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
 		try {
 			permissionDao.savePermission(userId, featureId);
 		} catch (ServerException e) {

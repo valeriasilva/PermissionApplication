@@ -1,39 +1,33 @@
 package client.controller;
 
-import java.awt.HeadlessException;
-import java.rmi.NotBoundException;
+
 import java.rmi.RemoteException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
-
-import javax.swing.JOptionPane;
 
 import client.service.ServiceLocator;
 import common.model.Feature;
 import common.service.ServiceException;
+import static client.util.Util.showMessage;;
 
 public class PermissionController {
 
 	public void save(final Long userId, final Long featureId)
 			throws ParseException {
 
-		// Verificar se o usuário já tem permissão para a funcionalidade selecionada
 		try {
 			try {
+				// Verificar se o usuário já tem permissão para a funcionalidade selecionada
 				if (ServiceLocator.getServer().verifyExistingPermission(userId, featureId)) {
-					JOptionPane.showMessageDialog(null,
-							"O usuário já tem permissão para usar esta Funcionalidade");
+					showMessage("O usuário já tem permissão para usar esta Funcionalidade");
 				} else {
 					ServiceLocator.getServer().savePermission(userId, featureId);
 				}
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas na conexão remota com o servidor. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de atribuir permissão.\n"+ e.getMessage());
 		} 
 	}
 
@@ -42,12 +36,10 @@ public class PermissionController {
 			try {
 				ServiceLocator.getServer().deletePermission(FeatureId, UserId);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas na conexão remota com o servidor. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas na tentativa de excluir permissão. \n"+ e.getMessage());
 		} 
 	}
 
@@ -56,12 +48,10 @@ public class PermissionController {
 			try {
 				return ServiceLocator.getServer().findFeaturesPermittedFor(userId);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas na conexão remota com o servidor. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas ao listar funcionalidades permitidas para o usuário selecionado.\n"+ e.getMessage());
 		} 
 		return null;
 	}
@@ -71,17 +61,11 @@ public class PermissionController {
 			try {
 				return ServiceLocator.getServer().findFeatureUserHasNoPermission(userId);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas na conexão remota com o servidor. \n"+ e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showMessage("Problemas ao listar funcionalidades não permitidas para o usuário selecionado. \n"+ e.getMessage());
 		}
 		return null;
-	}
-	
-	private void showMessage(final String msg) {
-		JOptionPane.showMessageDialog(null, msg);
 	}
 }

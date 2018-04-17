@@ -2,16 +2,11 @@ package common.service;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.sql.SQLException;
 import java.util.List;
-
 import common.model.Feature;
 import common.model.Plugin;
 import common.model.User;
 
-/**
- * Define a interface remota do servidor
- */
 public interface ServerInterface extends Remote {
 
 	/** nome para referenciar remotamente o servidor */
@@ -71,7 +66,6 @@ public interface ServerInterface extends Remote {
 	 * @throws RemoteException
 	 *             .
 	 */
-
 	List<Feature> findFeatureUserHasNoPermission(Long userId) throws ServiceException, RemoteException;
 
 	List<Feature> findFeaturesPermittedFor(Long userId) throws ServiceException, RemoteException;

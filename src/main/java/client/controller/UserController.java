@@ -1,15 +1,11 @@
 package client.controller;
 
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import client.service.ServiceLocator;
+import static client.util.Util.showMessage;
 import common.model.User;
 import common.service.ServiceException;
 
@@ -23,14 +19,10 @@ public class UserController {
 			listOfUsers = ServiceLocator.getServer().getUsers();
 			return listOfUsers;
 		} catch (RemoteException e) {
-			JOptionPane.showMessageDialog(null,
-					"Problemas ao conectar com o servidor." +
-							e.getMessage());
+			showMessage("Problemas ao conectar com o servidor." +e.getMessage());
 			System.exit(0);
 		}catch (final ServiceException e) {
-			JOptionPane.showMessageDialog(null,
-					"Problemas ao localizar usuários na base de dados" +
-							e.getMessage());
+			showMessage("Problemas ao listar usuários." +e.getMessage());
 		}
 		return listOfUsers;
 	}
@@ -44,14 +36,11 @@ public class UserController {
 				listOfUsers =  ServiceLocator.getServer().getUsersByName(name);
 				return listOfUsers;
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				showMessage("Problemas ao conectar com o servidor." +e.getMessage());
 			}
 		} catch (final ServiceException e) {
-			JOptionPane.showMessageDialog(null,
-					"Problemas ao localizar usuários" +
-							e.getLocalizedMessage());
+			showMessage("Problemas ao listar usuários pelo nome" +e.getMessage());
 		}
-		return null;
+		return listOfUsers;
 	}
 }

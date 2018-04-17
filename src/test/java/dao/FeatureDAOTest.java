@@ -1,6 +1,5 @@
 package dao;
 
-import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import org.junit.Assert;
@@ -21,11 +20,16 @@ public class FeatureDAOTest {
 
 	@BeforeClass
 	public static void testGettingConnection() {
-		Assert.assertNotNull(DBAccess.createDBConnection());
+		try {
+			Assert.assertNotNull(DBAccess.createDBConnection());
+		} catch (ServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Before
-	public void createsTestScenario() throws SQLException {
+	public void createsTestScenario() {
 		final Plugin plugin = new Plugin();
 
 		plugin.setName("Plugin test");
@@ -41,7 +45,7 @@ public class FeatureDAOTest {
 	}
 
 	@Test
-	public void shouldInsertFeatureInDataBase() throws SQLException {
+	public void shouldInsertFeatureInDataBase() {
 		System.out.println("Teste: Insert de Funcionalidade");
 
 		insertFeatureInDataBase();
@@ -50,7 +54,7 @@ public class FeatureDAOTest {
 	}
 
 	@Test
-	public void shouldSelectFeatureFromDataBase() throws SQLException {
+	public void shouldSelectFeatureFromDataBase() {
 		System.out.println("Teste: Select de Funcionalidade");
 
 		insertFeatureInDataBase();
@@ -65,18 +69,12 @@ public class FeatureDAOTest {
 	}
 
 	@Test
-	public void shouldDeleteFeatureFromDataBase() throws SQLException {
+	public void shouldDeleteFeatureFromDataBase() {
 		System.out.println("Teste: Delete de Funcionalidade");
 
 		try {
 			new FeatureDAO().deleteFeature(featureIdGenerated);
-		} catch (ServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// Deve retornar null indicando que a feature foi deletada
-		try {
+			// Deve retornar null indicando que a feature foi deletada
 			Assert.assertNull(new FeatureDAO().findFeatureById((long) featureIdGenerated).getId());
 		} catch (ServerException e) {
 			// TODO Auto-generated catch block
@@ -85,7 +83,7 @@ public class FeatureDAOTest {
 	}
 
 	@Test
-	public void shoulSelectFeaturesOfPlugins() throws SQLException {
+	public void shoulSelectFeaturesOfPlugins() {
 		insertFeatureInDataBase();
 
 		try {
@@ -96,7 +94,7 @@ public class FeatureDAOTest {
 		}
 	}
 
-	public void insertFeatureInDataBase() throws SQLException {
+	public void insertFeatureInDataBase(){
 		final Feature feature = new Feature();
 
 		feature.setName("Feature Teste");
