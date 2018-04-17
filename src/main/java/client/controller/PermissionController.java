@@ -9,9 +9,9 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import client.Client;
-import common.ServiceException;
+import client.service.ServiceLocator;
 import common.model.Feature;
+import common.service.ServiceException;
 
 public class PermissionController {
 
@@ -21,11 +21,11 @@ public class PermissionController {
 		// Verificar se o usuário já tem permissão para a funcionalidade selecionada
 		try {
 			try {
-				if (Client.getServer().verifyExistingPermission(userId, featureId)) {
+				if (ServiceLocator.getServer().verifyExistingPermission(userId, featureId)) {
 					JOptionPane.showMessageDialog(null,
 							"O usuário já tem permissão para usar esta Funcionalidade");
 				} else {
-					Client.getServer().savePermission(userId, featureId);
+					ServiceLocator.getServer().savePermission(userId, featureId);
 				}
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
@@ -40,7 +40,7 @@ public class PermissionController {
 	public void delete(final long FeatureId, final Long UserId){
 		try {
 			try {
-				Client.getServer().deletePermission(FeatureId, UserId);
+				ServiceLocator.getServer().deletePermission(FeatureId, UserId);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -54,7 +54,7 @@ public class PermissionController {
 	public List<Feature> listFeaturesPermittedFor(final Long userId) {
 		try {
 			try {
-				return Client.getServer().findFeaturesPermittedFor(userId);
+				return ServiceLocator.getServer().findFeaturesPermittedFor(userId);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -69,7 +69,7 @@ public class PermissionController {
 	public List<Feature> listFeaturesNotPermittedFor(final Long userId) {
 		try {
 			try {
-				return Client.getServer().findFeatureUserHasNoPermission(userId);
+				return ServiceLocator.getServer().findFeatureUserHasNoPermission(userId);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

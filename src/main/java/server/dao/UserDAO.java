@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import common.model.User;
-import server.ServerException;
 
 public class UserDAO extends GenericDAO {
 

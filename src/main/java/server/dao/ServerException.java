@@ -1,4 +1,4 @@
-package server;
+package server.dao;
 
 public class ServerException extends Exception {
 

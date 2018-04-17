@@ -1,29 +1,29 @@
-package client;
+package client.service;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import common.ServerInterface;
+import common.service.ServerInterface;
 
-public class Client {
+public class ServiceLocator {
 
 	private static ServerInterface server;
 
 	public static ServerInterface getServer() throws RemoteException{
-		if (Client.server == null) {
+		if (ServiceLocator.server == null) {
 			Registry registry;
 			try {
 				registry = LocateRegistry.getRegistry("localhost", ServerInterface.RMI_PORT);
-				Client.server = (ServerInterface) registry.lookup(ServerInterface.REFERENCE_NAME);
+				ServiceLocator.server = (ServerInterface) registry.lookup(ServerInterface.REFERENCE_NAME);
 
 			} catch (NotBoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		return Client.server;
+		return ServiceLocator.server;
 	}
 
 }

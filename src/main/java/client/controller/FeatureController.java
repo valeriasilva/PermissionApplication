@@ -8,9 +8,9 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import client.Client;
-import common.ServiceException;
+import client.service.ServiceLocator;
 import common.model.Feature;
+import common.service.ServiceException;
 
 public class FeatureController {
 
@@ -23,7 +23,7 @@ public class FeatureController {
 
 		try {
 			try {
-				Client.getServer().saveFeature(feature);
+				ServiceLocator.getServer().saveFeature(feature);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -44,7 +44,7 @@ public class FeatureController {
 
 		try {
 			try {
-				Client.getServer().updateFeature(feature);
+				ServiceLocator.getServer().updateFeature(feature);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -59,7 +59,7 @@ public class FeatureController {
 		try {
 
 			try {
-				return Client.getServer().findAllFeatures();
+				return ServiceLocator.getServer().findAllFeatures();
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -74,7 +74,7 @@ public class FeatureController {
 	public void delete(final long id) throws SQLException {
 		try {
 			try {
-				Client.getServer().deleteFeature(id);
+				ServiceLocator.getServer().deleteFeature(id);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -88,7 +88,7 @@ public class FeatureController {
 	public List<Feature> searchFeatureByName(final String text) {
 		try {
 			try {
-				return Client.getServer().findFeatureByName(text);
+				return ServiceLocator.getServer().findFeatureByName(text);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -103,7 +103,7 @@ public class FeatureController {
 	public List<Feature> searchFeatureNotPermittedByName(final String name, final Long userId) {
 		try {
 			try {
-				return Client.getServer().findFeatureNotPermittedByName(name, userId);
+				return ServiceLocator.getServer().findFeatureNotPermittedByName(name, userId);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -118,7 +118,7 @@ public class FeatureController {
 	public List<Feature> getFeaturesByPlugin(final Long idPlugin) {
 		try {
 			try {
-				return Client.getServer().findFeaturesByPlugin(idPlugin);
+				return ServiceLocator.getServer().findFeaturesByPlugin(idPlugin);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -134,7 +134,7 @@ public class FeatureController {
 	public List<Feature> listFeaturesSelectedUserHasNoPermission(final Long userId) {
 		try {
 			try {
-				return Client.getServer().findFeatureUserHasNoPermission(userId);
+				return ServiceLocator.getServer().findFeatureUserHasNoPermission(userId);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -9,10 +9,10 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import client.Client;
-import common.ServiceException;
+import client.service.ServiceLocator;
 import common.model.Feature;
 import common.model.Plugin;
+import common.service.ServiceException;
 
 public class PluginController {
 
@@ -26,7 +26,7 @@ public class PluginController {
 
 		try {
 			try {
-				Client.getServer().savePlugin(plugin);
+				ServiceLocator.getServer().savePlugin(plugin);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -47,7 +47,7 @@ public class PluginController {
 
 		try {
 			try {
-				Client.getServer().updatePlugin(plugin);
+				ServiceLocator.getServer().updatePlugin(plugin);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -62,7 +62,7 @@ public class PluginController {
 
 		try {
 			try {
-				return Client.getServer().findPlugins();
+				return ServiceLocator.getServer().findPlugins();
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -77,7 +77,7 @@ public class PluginController {
 	public void delete(final long id) throws SQLException {
 		try {
 			try {
-				Client.getServer().deletePlugin(id);
+				ServiceLocator.getServer().deletePlugin(id);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -91,7 +91,7 @@ public class PluginController {
 	public List<Plugin> searchPluginByName(final String name) throws SQLException {
 		try {
 			try {
-				return Client.getServer().findPluginByName(name);
+				return ServiceLocator.getServer().findPluginByName(name);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -106,7 +106,7 @@ public class PluginController {
 	public static Plugin findPluginById(final Long id) {
 		try {
 			try {
-				return Client.getServer().findPluginById(id);
+				return ServiceLocator.getServer().findPluginById(id);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -9,7 +9,6 @@ import java.util.List;
 import client.controller.PluginController;
 import common.model.Feature;
 import common.model.Plugin;
-import server.ServerException;
 
 public class FeatureDAO extends GenericDAO {
 

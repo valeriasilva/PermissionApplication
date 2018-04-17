@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import common.model.Feature;
-import server.ServerException;
 
 public class PermissionDAO extends GenericDAO {
 

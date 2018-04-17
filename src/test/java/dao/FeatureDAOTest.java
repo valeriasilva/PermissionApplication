@@ -10,10 +10,10 @@ import org.junit.Test;
 
 import common.model.Feature;
 import common.model.Plugin;
-import server.ServerException;
 import server.dao.DBAccess;
 import server.dao.FeatureDAO;
 import server.dao.PluginDAO;
+import server.dao.ServerException;
 
 public class FeatureDAOTest {
 	int pluginIdGenarated = 0;

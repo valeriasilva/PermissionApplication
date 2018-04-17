@@ -9,9 +9,9 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import client.Client;
-import common.ServiceException;
+import client.service.ServiceLocator;
 import common.model.User;
+import common.service.ServiceException;
 
 public class UserController {
 
@@ -20,7 +20,7 @@ public class UserController {
 		List<User> listOfUsers = new ArrayList<User>();
 		
 		try {
-			listOfUsers = Client.getServer().getUsers();
+			listOfUsers = ServiceLocator.getServer().getUsers();
 			return listOfUsers;
 		} catch (RemoteException e) {
 			JOptionPane.showMessageDialog(null,
@@ -41,7 +41,7 @@ public class UserController {
 		
 		try {
 			try {
-				listOfUsers =  Client.getServer().getUsersByName(name);
+				listOfUsers =  ServiceLocator.getServer().getUsersByName(name);
 				return listOfUsers;
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block

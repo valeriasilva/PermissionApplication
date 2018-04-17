@@ -10,11 +10,11 @@ import org.junit.Test;
 import common.model.Feature;
 import common.model.Plugin;
 import common.model.User;
-import server.ServerException;
 import server.dao.DBAccess;
 import server.dao.FeatureDAO;
 import server.dao.PermissionDAO;
 import server.dao.PluginDAO;
+import server.dao.ServerException;
 import server.dao.UserDAO;
 
 public class PermissionDAOTest {

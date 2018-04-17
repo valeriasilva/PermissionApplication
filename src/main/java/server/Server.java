@@ -6,14 +6,15 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
-import common.ServerInterface;
-import common.ServiceException;
 import common.model.Feature;
 import common.model.Plugin;
 import common.model.User;
+import common.service.ServerInterface;
+import common.service.ServiceException;
 import server.dao.FeatureDAO;
 import server.dao.PermissionDAO;
 import server.dao.PluginDAO;
+import server.dao.ServerException;
 import server.dao.UserDAO;
 
 public class Server implements ServerInterface {

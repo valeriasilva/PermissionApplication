@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import common.model.Plugin;
-import server.ServerException;
 
 public class PluginDAO extends GenericDAO {
 
