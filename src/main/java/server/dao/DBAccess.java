@@ -5,13 +5,9 @@ import java.sql.DriverManager;
 
 public class DBAccess {
 
-	private Connection conn;
 	private static final String DRIVER_CLASS = "oracle.jdbc.driver.OracleDriver";
-	private static final String USER = "valeria";
-	private static final String PASS = "12345678";
-
-	public DBAccess() {
-	}
+	private static final String USER = "candidato";
+	private static final String PASS = "candidato";
 
 	public static Connection createDBConnection() {
 		try {

@@ -18,10 +18,6 @@ import server.dao.UserDAO;
 
 public class Server implements ServerInterface {
 
-	// public String hello(final User user) throws RemoteException {
-	// // TODO Auto-generated method stub
-	// return user.getLogin();
-	// }
 	PluginDAO pluginDao;
 	FeatureDAO featureDao;
 	PermissionDAO permissionDao;
@@ -43,8 +39,6 @@ public class Server implements ServerInterface {
 
 	/**
 	 * Métodos referentes aos Usuários
-	 * @throws ServiceException 
-	 *             .
 	 */
 	@Override
 	public List<User> getUsers() throws ServiceException {
@@ -55,7 +49,7 @@ public class Server implements ServerInterface {
 		} catch (ServerException e) {
 			throw new ServiceException("Falha ao buscar usuários. " + e.getMessage());
 		}
-		
+
 		return users;
 	}
 
@@ -230,8 +224,7 @@ public class Server implements ServerInterface {
 	}
 
 	@Override
-	public List<Feature> findFeatureNotPermittedByName(final String name, final Long userId)
-			throws ServiceException {
+	public List<Feature> findFeatureNotPermittedByName(final String name, final Long userId) throws ServiceException {
 		permissionDao = new PermissionDAO();
 		try {
 			return permissionDao.findFeaturesNotPermittedByName(name, userId);
