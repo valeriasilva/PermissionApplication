@@ -33,7 +33,6 @@ public class FeatureWindow extends JFrame {
 
 	private final FeatureController featureController;
 
-	private JPanel contentPane;
 	private JTextField featureNameField;
 	private JTextField searchFeatureField;
 	private JTextArea featureDescriptionArea;
@@ -42,7 +41,7 @@ public class FeatureWindow extends JFrame {
 	private FeatureTableModel ftmodel;
 	private JTextField pluginOfFeature;
 	private Feature feature = null;
-	private SetPluginWindow setPluginWindow;
+	private PluginChooserDialog setPluginWindow;
 	private AbstractAction saveAction;
 
 	/**
@@ -50,7 +49,7 @@ public class FeatureWindow extends JFrame {
 	 */
 	public FeatureWindow() {
 		featureController = new FeatureController(this);
-		setPluginWindow = new SetPluginWindow();
+		setPluginWindow = new PluginChooserDialog();
 		buildGUI();
 	}
 
@@ -91,7 +90,7 @@ public class FeatureWindow extends JFrame {
 		btnPlugin.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				setPluginWindow = new SetPluginWindow();
+				setPluginWindow = new PluginChooserDialog();
 				setPluginWindow.setVisible(true);
 			}
 		});
@@ -104,18 +103,18 @@ public class FeatureWindow extends JFrame {
 			}
 		});
 
-		contentPane = new JPanel(new MigLayout("ins 10", "[right][grow][]", "[][grow][][grow][][]"));
-		contentPane.add(searchFeatureField, "spanx 2, grow");
-		contentPane.add(searchBtn, "split 2, sg btn1");
+		JPanel contentPane = new JPanel(new MigLayout("ins 10", "[right][grow][right][grow]", "[][grow][][grow][][]"));
+		contentPane.add(searchFeatureField, "spanx 4, grow, split 3");
+		contentPane.add(searchBtn, "sg btn1");
 		contentPane.add(newfeatureBtn, "wrap, sg btn1");
 		contentPane.add(new JScrollPane(table), "grow, wrap, spanx");
 		contentPane.add(new JLabel("Nome:"));
-		contentPane.add(featureNameField, "grow, spanx, wrap");
+		contentPane.add(featureNameField, "grow");
+		contentPane.add(new JLabel("Plugin:"));
+		contentPane.add(pluginOfFeature, "grow, split 2");
+		contentPane.add(btnPlugin, "wrap");
 		contentPane.add(new JLabel("Descrição:"), "ay top");
 		contentPane.add(new JScrollPane(featureDescriptionArea), "h 60:60:60, spanx, grow, wrap");
-		contentPane.add(new JLabel("Plugin:"));
-		contentPane.add(pluginOfFeature, "grow, spanx, split 2");
-		contentPane.add(btnPlugin, "wrap");
 		contentPane.add(createControlPanel(), "spanx, ax right");
 
 		return contentPane;

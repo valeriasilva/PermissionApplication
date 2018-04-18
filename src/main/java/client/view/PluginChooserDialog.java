@@ -21,7 +21,7 @@ import client.view.tablemodels.PluginTableModel;
 import common.model.Plugin;
 import net.miginfocom.swing.MigLayout;
 
-public class SetPluginWindow extends JDialog {
+public class PluginChooserDialog extends JDialog {
 
 	private JPanel contentPane;
 	private JTextField search_plugin_feature;
@@ -35,12 +35,11 @@ public class SetPluginWindow extends JDialog {
 	private Action searchAction;
 	private Action saveAction;
 
-	public SetPluginWindow() {
+	public PluginChooserDialog() {
 		buildGUI();
 	}
 
 	private void buildGUI() {
-
 		setTitle("Definir Plugin");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setContentPane(createContentPanel());
