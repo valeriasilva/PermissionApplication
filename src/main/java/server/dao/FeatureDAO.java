@@ -62,7 +62,7 @@ public class FeatureDAO extends GenericDAO {
 				getConnection().close();
 			} catch (SQLException e) {
 				// Log
-				e.getStackTrace();
+				e.printStackTrace();
 			}
 		}
 		return features;
@@ -102,7 +102,7 @@ public class FeatureDAO extends GenericDAO {
 				getConnection().close();
 			} catch (SQLException e) {
 				// Log
-				e.getStackTrace();
+				e.printStackTrace();
 			}
 		}
 		return features;
@@ -138,7 +138,7 @@ public class FeatureDAO extends GenericDAO {
 				getConnection().close();
 			} catch (SQLException e) {
 				// Log
-				e.getStackTrace();
+				e.printStackTrace();
 			}
 		}
 		return feature;
@@ -176,7 +176,7 @@ public class FeatureDAO extends GenericDAO {
 				getConnection().close();
 			} catch (SQLException e) {
 				// Log
-				e.getStackTrace();
+				e.printStackTrace();
 			}
 		}
 		return features;
