@@ -16,7 +16,7 @@ public class Plugin implements Serializable {
 	public Plugin() {
 		this.setName("");
 		this.setDescription("");
-		this.setFeatures(new ArrayList());
+		this.setFeatures(new ArrayList<Feature>());
 		this.setCreationDate(Util.getCurrentDateFormated());
 	}
 

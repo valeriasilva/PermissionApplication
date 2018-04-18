@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import client.controller.PluginController;
 import common.model.Feature;
 import common.model.Plugin;
 
@@ -15,16 +14,14 @@ public class FeatureDAO extends GenericDAO {
 	public FeatureDAO() throws ServerException {
 	}
 
-	public int saveFeature(final Feature feature)  throws ServerException {
+	public int saveFeature(final Feature feature) throws ServerException {
 		final String insert = "INSERT INTO Feature (name, description, creationDate, plugin_id) VALUES(?,?,?,?)";
 		return save(insert, feature.getName(), feature.getDescription(), feature.getCreationDate(),
 				feature.getPlugin().getId().intValue());
 	}
 
 	public void updateFeature(final Feature feature) throws ServerException {
-		final String update = "UPDATE Feature " +
-				"SET name = ?, description = ? " +
-				"WHERE id = ?";
+		final String update = "UPDATE Feature " + "SET name = ?, description = ? " + "WHERE id = ?";
 		update(update, feature.getId(), feature.getName(), feature.getDescription());
 	}
 
@@ -57,14 +54,14 @@ public class FeatureDAO extends GenericDAO {
 				features.add(feature);
 			}
 		} catch (SQLException e) {
-			throw new ServerException("Não foi possível buscar funcionalidades "+ e.getMessage());
-		}finally {
+			throw new ServerException("Não foi possível buscar funcionalidades " + e.getMessage());
+		} finally {
 			try {
 				rs.close();
 				stmt.close();
 				getConnection().close();
 			} catch (SQLException e) {
-				//Log
+				// Log
 				e.getStackTrace();
 			}
 		}
@@ -97,14 +94,14 @@ public class FeatureDAO extends GenericDAO {
 				features.add(feature);
 			}
 		} catch (SQLException e) {
-			throw new ServerException("Não foi possível buscar funcionalidades "+ e.getMessage());
-		}finally {
+			throw new ServerException("Não foi possível buscar funcionalidades " + e.getMessage());
+		} finally {
 			try {
 				rs.close();
 				stmt.close();
 				getConnection().close();
 			} catch (SQLException e) {
-				//Log
+				// Log
 				e.getStackTrace();
 			}
 		}
@@ -133,14 +130,14 @@ public class FeatureDAO extends GenericDAO {
 				feature.setCreationDate(rs.getTimestamp("creationDate"));
 			}
 		} catch (SQLException e) {
-			throw new ServerException("Não foi possível buscar funcionalidades "+ e.getMessage());
-		}finally {
+			throw new ServerException("Não foi possível buscar funcionalidades " + e.getMessage());
+		} finally {
 			try {
 				rs.close();
 				stmt.close();
 				getConnection().close();
 			} catch (SQLException e) {
-				//Log
+				// Log
 				e.getStackTrace();
 			}
 		}
@@ -171,14 +168,14 @@ public class FeatureDAO extends GenericDAO {
 				features.add(feature);
 			}
 		} catch (SQLException e) {
-			throw new ServerException("Não foi possível buscar funcionalidades pelo Plugin"+ e.getMessage());
-		}finally {
+			throw new ServerException("Não foi possível buscar funcionalidades pelo Plugin" + e.getMessage());
+		} finally {
 			try {
 				rs.close();
 				stmt.close();
 				getConnection().close();
 			} catch (SQLException e) {
-				//Log
+				// Log
 				e.getStackTrace();
 			}
 		}

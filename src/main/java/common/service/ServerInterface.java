@@ -3,6 +3,7 @@ package common.service;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+
 import common.model.Feature;
 import common.model.Plugin;
 import common.model.User;
@@ -17,8 +18,7 @@ public interface ServerInterface extends Remote {
 	/**
 	 * Obtém todos os usuários do sistema.
 	 * 
-	 * @return lista com os usuários
-	 *             .
+	 * @return lista com os usuários .
 	 */
 	List<User> getUsers() throws ServiceException, RemoteException;
 
@@ -62,9 +62,6 @@ public interface ServerInterface extends Remote {
 
 	/**
 	 * Métodos referentes às Permissões
-	 * 
-	 * @throws RemoteException
-	 *             .
 	 */
 	List<Feature> findFeatureUserHasNoPermission(Long userId) throws ServiceException, RemoteException;
 

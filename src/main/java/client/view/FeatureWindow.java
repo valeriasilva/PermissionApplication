@@ -18,18 +18,21 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
 import client.controller.FeatureController;
 import client.util.Util;
 import client.view.tablemodels.FeatureTableModel;
 import common.model.Feature;
 import net.miginfocom.swing.MigLayout;
-import static client.util.Util.showMessage;
 
 public class FeatureWindow extends JFrame {
 
 	private static final int MIN_HEIGHT = 500;
 	private static final int MIN_WIDTH = (int) (MIN_HEIGHT * Util.GOLDEN_RATIO);
 	private static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_HEIGHT);
+
+	private final FeatureController featureController;
+
 	private JPanel contentPane;
 	private JTextField featureNameField;
 	private JTextField searchFeatureField;
@@ -38,16 +41,16 @@ public class FeatureWindow extends JFrame {
 	private JTable table;
 	private FeatureTableModel ftmodel;
 	private JTextField pluginOfFeature;
-
-	final FeatureController featureController = new FeatureController();
-	Feature feature = null;
-	SetPluginWindow setPluginWindow = new SetPluginWindow();
+	private Feature feature = null;
+	private SetPluginWindow setPluginWindow;
 	private AbstractAction saveAction;
 
 	/**
 	 * Create the frame.
 	 */
 	public FeatureWindow() {
+		featureController = new FeatureController(this);
+		setPluginWindow = new SetPluginWindow();
 		buildGUI();
 	}
 
@@ -115,7 +118,6 @@ public class FeatureWindow extends JFrame {
 		contentPane.add(btnPlugin, "wrap");
 		contentPane.add(createControlPanel(), "spanx, ax right");
 
-
 		return contentPane;
 	}
 
@@ -171,7 +173,7 @@ public class FeatureWindow extends JFrame {
 
 	private FeatureTableModel getFeatureTableModel() {
 		if (ftmodel == null) {
-			ftmodel = new FeatureTableModel(new FeatureController().listFeatures());
+			ftmodel = new FeatureTableModel(featureController.getAllFeatures());
 		}
 		return ftmodel;
 	}
@@ -184,23 +186,20 @@ public class FeatureWindow extends JFrame {
 	}
 
 	private void onClickSave() {
-		// Se a a variável feature for null, trata-se de um insert
+		/* Se a a variável feature for null, trata-se de um insert */
 		if (feature == null) {
 			if (setPluginWindow.getPlugin() == null)
-				showMessage("Informe o Plugin ao qual esta Funcionalidade pertence");
+				featureController.showInfo("Informe o Plugin ao qual esta Funcionalidade pertence");
 			else {
 				final Long idPlugin = setPluginWindow.getPlugin().getId();
-
 				featureController.save(featureNameField.getText(), featureDescriptionArea.getText(), idPlugin);
 				ftmodel = null;
 				table.setModel(getFeatureTableModel());
-
-				showMessage("Funcionalidade salva com sucesso!");
-				
+				featureController.showInfo("Funcionalidade salva com sucesso!");
 				clearFields();
 			}
 		} else {
-			// se a variável feature não for nula, trata-se de um update
+			/* se a variável feature não for nula, trata-se de um update */
 			feature.setName(featureNameField.getText());
 			feature.setDescription(featureDescriptionArea.getText());
 
@@ -215,14 +214,14 @@ public class FeatureWindow extends JFrame {
 		final int tableIndex = table.getSelectedRow();
 
 		if (tableIndex < 0) {
-			showMessage("Selecione uma Funcionalidade para remover");
+			featureController.showInfo("Selecione uma Funcionalidade para remover");
 		} else {
 			feature = ftmodel.getFeature(tableIndex);
 
 			featureController.delete(feature.getId());
 			clearFields();
 			ftmodel.removeFeature(tableIndex);
-			showMessage("Funcionalidade removida com sucesso");
+			featureController.showInfo("Funcionalidade removida com sucesso");
 		}
 	}
 
@@ -232,10 +231,8 @@ public class FeatureWindow extends JFrame {
 
 	private void fillFields() {
 		final int tableIndex = table.getSelectedRow();
-
 		if (tableIndex >= 0) {
 			feature = ftmodel.getFeature(tableIndex);
-
 			featureNameField.setText(feature.getName());
 			featureDescriptionArea.setText(feature.getDescription());
 			pluginOfFeature.setText(feature.getPlugin().getName());

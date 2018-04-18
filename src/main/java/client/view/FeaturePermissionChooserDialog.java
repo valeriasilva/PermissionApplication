@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,15 +25,15 @@ import client.view.tablemodels.FeatureTableModel;
 import common.model.Feature;
 import common.model.User;
 
-public class SetFeaturePermission extends JDialog {
+public class FeaturePermissionChooserDialog extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
 	private JTextField text_featureSearch;
 	private FeatureTableModel ftmodel;
 	private JTable table_features;
 	private List<Feature> featureList;
-	private FeatureController featureController = new FeatureController();
-	private PermissionController permissionController = new PermissionController();
+	private final FeatureController featureController;
+	private final PermissionController permissionController;
 	private PermissionApplication mainWindow;
 	private Feature selectedFeature;
 	private User userSelected = new User();
@@ -43,7 +42,11 @@ public class SetFeaturePermission extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public SetFeaturePermission(final User userSeletedParameter, final PermissionApplication principalFrame) {
+	public FeaturePermissionChooserDialog(final User userSeletedParameter, final PermissionApplication principalFrame) {
+
+		this.featureController = new FeatureController(this);
+		this.permissionController = new PermissionController(this);
+
 		setTitle("Atribuir Nova Permissão");
 
 		userSelected = userSeletedParameter;
@@ -73,8 +76,8 @@ public class SetFeaturePermission extends JDialog {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				featureList = new ArrayList(featureController
-						.searchFeatureByName(text_featureSearch.getText()));
+				featureList = new ArrayList<Feature>(
+						featureController.searchFeatureByName(text_featureSearch.getText()));
 				ftmodel = null;
 				table_features.setModel(getFeatureTableModel(featureList));
 			}
@@ -107,10 +110,9 @@ public class SetFeaturePermission extends JDialog {
 
 								// Atualiza Tabela de Funcionalidades permitidas da Tela Main
 								ftmodel = new FeatureTableModel(
-										new PermissionController().listFeaturesPermittedFor(userSelected.getId()));
+										permissionController.listFeaturesPermittedFor(userSelected.getId()));
 								mainWindow.getTable_featuresPermission().setModel(ftmodel);
-							}
-							catch (final ParseException e1) {
+							} catch (final ParseException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
@@ -138,8 +140,7 @@ public class SetFeaturePermission extends JDialog {
 
 	private FeatureTableModel getFeatureTableModel() {
 		if (ftmodel == null) {
-			ftmodel = new FeatureTableModel(
-					new FeatureController().listFeatures());
+			ftmodel = new FeatureTableModel(featureController.getAllFeatures());
 		}
 		return ftmodel;
 	}

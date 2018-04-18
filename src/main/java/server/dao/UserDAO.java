@@ -9,15 +9,15 @@ import java.util.List;
 import common.model.User;
 
 public class UserDAO extends GenericDAO {
-	PreparedStatement stmt;
-	
+
 	public UserDAO() throws ServerException {
 	}
 
-	public List<User> findUsers() throws SQLException {
+	public List<User> findUsers() throws ServerException {
 		final List<User> users = new ArrayList<User>();
 		final String select = "SELECT * FROM User_";
 		ResultSet rs = null;
+		PreparedStatement stmt = null;
 		try {
 			stmt = getConnection().prepareStatement(select);
 			rs = stmt.executeQuery();
@@ -30,13 +30,17 @@ public class UserDAO extends GenericDAO {
 				user.setCurrentManagement(rs.getString("currentManagement"));
 				users.add(user);
 			}
-		}catch (SQLException e) {
-			//Registry LOG (e.getStackTrace()) aqui no handle (????)
-			throw new SQLException("Não foi possível buscar usuários"+ e.getMessage());
-		}finally{
-			rs.close();
-			stmt.close();
-			getConnection().close();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+			throw new ServerException("Não foi possível buscar usuários" + e1.getMessage());
+		} finally {
+			try {
+				rs.close();
+				stmt.close();
+				getConnection().close();
+			} catch (SQLException e2) {
+				e2.printStackTrace();
+			}
 		}
 		return users;
 	}
@@ -62,13 +66,13 @@ public class UserDAO extends GenericDAO {
 			stmt.close();
 			getConnection().close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			throw new ServerException("Não foi possível buscar usuários"+ e.getStackTrace());
+			e.printStackTrace();
+			throw new ServerException("Não foi possível buscar usuários" + e.getStackTrace());
 		}
 		return users;
 	}
 
-	public int saveUser(final User user) throws ServerException  {
+	public int saveUser(final User user) throws ServerException {
 		final String insert = "INSERT INTO User_ (fullname, status, currentmanagement, login) VALUES(?,?,?,?)";
 		return save(insert, user.getFullname(), user.isStatus(), user.getCurrentManagement(), user.getLogin());
 	}
