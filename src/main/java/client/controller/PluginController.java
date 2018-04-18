@@ -1,9 +1,7 @@
 package client.controller;
 
-import static client.util.Util.showMessage;
-
 import java.rmi.RemoteException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import client.service.ServiceLocator;
@@ -11,24 +9,25 @@ import common.model.Feature;
 import common.model.Plugin;
 import common.service.ServiceException;
 
-public class PluginController {
+public class PluginController extends Controller {
 
-	FeatureController featureController;
-	List<Plugin> plugins = new ArrayList<Plugin>();		
+	private final FeatureController featureController;
+
+	public PluginController() {
+		super();
+		featureController = new FeatureController(null);
+	}
 
 	public void save(final String name, final String description) {
 		final Plugin plugin = new Plugin();
 		plugin.setName(name);
 		plugin.setDescription(description);
-
 		try {
-			try {
-				ServiceLocator.getServer().savePlugin(plugin);
-			} catch (RemoteException e) {
-				showMessage("Problemas na conexão remota com o servidor. \n"+ e.getMessage());
-			}
+			ServiceLocator.getServer().savePlugin(plugin);
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de salvar plugin. \n"+ e.getMessage());
+			showError(null, "Problemas na tentativa de salvar plugin. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(null, "Problemas na conexão remota com o servidor. \n" + e.getMessage());
 		}
 	}
 
@@ -40,83 +39,48 @@ public class PluginController {
 		plugin.setDescription(description);
 
 		try {
-			try {
-				ServiceLocator.getServer().updatePlugin(plugin);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			ServiceLocator.getServer().updatePlugin(plugin);
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de atualizar plugin. \n"+ e.getMessage());
-		} 
+			showError(null, "Problemas na tentativa de atualizar plugin. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(null, "Problemas na conexão remota com o servidor. \n" + e.getMessage());
+		}
 	}
 
 	public List<Plugin> listPlugins() {
-		plugins = new ArrayList<Plugin>();		
 		try {
-			try {
-				plugins = ServiceLocator.getServer().findPlugins();
-				return plugins;
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			return ServiceLocator.getServer().findPlugins();
 		} catch (final ServiceException e1) {
-			showMessage("Problemas na tentativa de listar plugins. \n"+ e1.getMessage());
+			showError(null, "Problemas na tentativa de listar plugins. \n" + e1.getMessage());
+		} catch (RemoteException e) {
+			showError(null, "Problemas na conexão remota com o servidor. \n" + e.getMessage());
 		}
-		return plugins;
+		return Collections.emptyList();
 	}
 
 	public void delete(final long id) {
 		try {
-			try {
-				ServiceLocator.getServer().deletePlugin(id);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			ServiceLocator.getServer().deletePlugin(id);
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de excluir plugin. \n"+ e.getMessage());
+			showError(null, "Problemas na tentativa de excluir plugin. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(null, "Problemas na conexão remota com o servidor. \n" + e.getMessage());
 		}
 	}
 
 	public List<Plugin> searchPluginByName(final String name) {
-		plugins = new ArrayList<Plugin>();		
-
 		try {
-			try {
-				plugins = ServiceLocator.getServer().findPluginByName(name);
-				return plugins;
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			return ServiceLocator.getServer().findPluginByName(name);
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de buscar plugin por nome. \n"+ e.getMessage());
-		} 
-		return plugins;
-	}
-
-	public static Plugin findPluginById(final Long id) {
-		try {
-			try {
-				return ServiceLocator.getServer().findPluginById(id);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de buscar plugin. \n"+ e.getMessage());
+			showError(null, "Problemas na tentativa de buscar plugin por nome. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(null, "Problemas na conexão remota com o servidor. \n" + e.getMessage());
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
-	public List<Feature> getListOfFeaturesByPlugin(final Long idPlugin) {
-		List<Feature> features = new ArrayList<Feature>();
-		featureController = new FeatureController();
-		features = featureController.getFeaturesByPlugin(idPlugin);
-
-		return features;
+	public List<Feature> getFeaturesByPlugin(final Long pluginId) {
+		return featureController.getFeaturesByPlugin(pluginId);
 	}
 
 }

@@ -1,33 +1,36 @@
 package client.controller;
 
+import java.awt.Component;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import client.service.ServiceLocator;
 import common.model.Feature;
 import common.service.ServiceException;
 
-import static client.util.Util.showMessage;
+public class FeatureController extends Controller {
 
-public class FeatureController {
-	
-	List<Feature> featureList = new ArrayList<Feature>();
+	private final Component parentComponent;
 
-	public void save(final String name, final String description, final Long idPlugin){
+	public FeatureController(final Component parentComponent) {
+		super();
+		this.parentComponent = parentComponent;
+	}
+
+	public void save(final String name, final String description, final Long idPlugin) {
+
 		final Feature feature = new Feature();
 		feature.setName(name);
 		feature.setDescription(description);
 		feature.getPlugin().setId(idPlugin);
 
 		try {
-			try {
-				ServiceLocator.getServer().saveFeature(feature);
-			} catch (RemoteException e) {
-				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
-			}
+			ServiceLocator.getServer().saveFeature(feature);
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de adicionar funcionalidade. \n"+ e.getMessage());
+			showError(parentComponent, "Problemas na tentativa de adicionar funcionalidade. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(parentComponent, "Problemas ao conectar com o servidor remoto. \n" + e.getMessage());
 		}
 	}
 
@@ -39,101 +42,86 @@ public class FeatureController {
 		feature.setDescription(description);
 
 		try {
-			try {
-				ServiceLocator.getServer().updateFeature(feature);
-			} catch (RemoteException e) {
-				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
-			}
+			ServiceLocator.getServer().updateFeature(feature);
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de atualizar funcionalidade. \n"+ e.getMessage());
-		} 
+			showError(parentComponent, "Problemas na tentativa de atualizar funcionalidade. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(parentComponent, "Problemas ao conectar com o servidor remoto. \n" + e.getMessage());
+		}
 	}
 
-	public List<Feature> listFeatures() {
-		featureList = new ArrayList<Feature>();
+	public List<Feature> getAllFeatures() {
 		try {
-			try {
-				featureList = ServiceLocator.getServer().findAllFeatures();
-				return featureList;
-			} catch (RemoteException e) {
-				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
-			}
+			return ServiceLocator.getServer().findAllFeatures();
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de listar funcionalidades. \n"+ e.getMessage());
-		} 
-		return featureList;
+			showError(parentComponent, "Problemas na tentativa de listar funcionalidades. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(parentComponent, "Problemas ao conectar com o servidor remoto. \n" + e.getMessage());
+		}
+		return Collections.emptyList();
 	}
 
 	public void delete(final long id) {
 		try {
-			try {
-				ServiceLocator.getServer().deleteFeature(id);
-			} catch (RemoteException e) {
-				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
-			}
+			ServiceLocator.getServer().deleteFeature(id);
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de excluir funcionalidade. \n"+ e.getMessage());
-		} 
+			showError(parentComponent, "Problemas na tentativa de excluir funcionalidade. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(parentComponent, "Problemas ao conectar com o servidor remoto. \n" + e.getMessage());
+		}
 	}
 
 	public List<Feature> searchFeatureByName(final String text) {
-		featureList = new ArrayList<Feature>();
 		try {
-			try {
-				featureList = ServiceLocator.getServer().findFeatureByName(text);
-				return featureList;
-			} catch (RemoteException e) {
-				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
-			}
+			return ServiceLocator.getServer().findFeatureByName(text);
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de buscar funcionalidades pelo nome. \n"+ e.getMessage());
-		} 
-		return featureList;
+			showError(parentComponent,
+					"Problemas na tentativa de buscar funcionalidades pelo nome. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(parentComponent, "Problemas ao conectar com o servidor remoto. \n" + e.getMessage());
+		}
+		return Collections.emptyList();
 	}
 
 	public List<Feature> searchFeatureNotPermittedByName(final String name, final Long userId) {
-		featureList = new ArrayList<Feature>();
 		try {
-			try {
-				featureList = ServiceLocator.getServer().findFeatureNotPermittedByName(name, userId);
-				return featureList;
-			} catch (RemoteException e) {
-				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
-			}
+			return ServiceLocator.getServer().findFeatureNotPermittedByName(name, userId);
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de buscar funcionalidades permitidas. \n"+ e.getMessage());
+			showError(parentComponent,
+					"Problemas na tentativa de buscar funcionalidades permitidas. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(parentComponent, "Problemas ao conectar com o servidor remoto. \n" + e.getMessage());
 		}
-		return featureList;
+		return Collections.emptyList();
 	}
 
 	public List<Feature> getFeaturesByPlugin(final Long idPlugin) {
-		featureList = new ArrayList<Feature>();
 		try {
-			try {
-				featureList = ServiceLocator.getServer().findFeaturesByPlugin(idPlugin);
-				return featureList;
-			} catch (RemoteException e) {
-				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
-			}
+			return ServiceLocator.getServer().findFeaturesByPlugin(idPlugin);
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de buscar funcionalidades por plugin. \n"+ e.getMessage());
+			showError(parentComponent,
+					"Problemas na tentativa de buscar funcionalidades por plugin. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(parentComponent, "Problemas ao conectar com o servidor remoto. \n" + e.getMessage());
 		}
 
-		return featureList;
+		return Collections.emptyList();
 	}
 
 	public List<Feature> listFeaturesSelectedUserHasNoPermission(final Long userId) {
-		featureList = new ArrayList<Feature>();
 		try {
-			try {
-				featureList = ServiceLocator.getServer().findFeatureUserHasNoPermission(userId);
-				return featureList;
-			} catch (RemoteException e) {
-				showMessage("Problemas ao conectar com o servidor remoto. \n"+ e.getMessage());
-			}
+			return ServiceLocator.getServer().findFeatureUserHasNoPermission(userId);
 		} catch (final ServiceException e) {
-			showMessage("Problemas na tentativa de listar funcionalidades sem permissão atribuída. \n"+ e.getMessage());
+			showError(parentComponent,
+					"Problemas na tentativa de listar funcionalidades sem permissão atribuída. \n" + e.getMessage());
+		} catch (RemoteException e) {
+			showError(parentComponent, "Problemas ao conectar com o servidor remoto. \n" + e.getMessage());
 		}
-		return featureList;
+		return Collections.emptyList();
 	}
+
+	public void showInfo(String msg) {
+		showInfo(parentComponent, msg);
+	}
+
 }

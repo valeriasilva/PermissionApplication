@@ -5,9 +5,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.text.ParseException;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -228,8 +225,7 @@ public class PluginWindow extends JFrame {
 
 	private TableModel getFeaturesByPlugin() {
 		final Plugin selectedPlugin = getSelectedPluginFromTable();
-		final List<Feature> featuresByPlugin = pluginController
-				.getListOfFeaturesByPlugin(selectedPlugin.getId().longValue());
+		final List<Feature> featuresByPlugin = pluginController.getFeaturesByPlugin(selectedPlugin.getId().longValue());
 
 		ftmodel = new FeatureTableModel(featuresByPlugin);
 
