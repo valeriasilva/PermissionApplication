@@ -16,13 +16,13 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.table.TableModel;
 
 import client.controller.ApplicationController;
 import client.controller.Controller;
 import client.controller.PermissionController;
 import client.controller.UserController;
+import client.view.components.ApplicationTextField;
 import client.view.tablemodels.FeatureTableModel;
 import client.view.tablemodels.UserTableModel;
 import common.model.Feature;
@@ -36,7 +36,7 @@ public class PermissionApplication extends JFrame {
 
 	private JTable table_users;
 	private UserTableModel utmodel;
-	private JTextField text_search_users;
+	private ApplicationTextField searchUserField;
 	private JTable table_featuresPermission;
 	private JLabel lblFuncionalidadesPermitidas;
 	private FeatureTableModel ftmodel = new FeatureTableModel();
@@ -58,6 +58,7 @@ public class PermissionApplication extends JFrame {
 		this.userController = new UserController(this);
 		this.permissionController = new PermissionController(this);
 		initialize();
+		setLocationRelativeTo(null);
 	}
 
 	private void initialize() {
@@ -110,8 +111,8 @@ public class PermissionApplication extends JFrame {
 			public void actionPerformed(final ActionEvent e) {
 				List<User> usersList = new ArrayList<User>();
 
-				if (text_search_users.getText() != "") {
-					usersList = userController.listUsersByName(text_search_users.getText());
+				if (searchUserField.getText() != "") {
+					usersList = userController.listUsersByName(searchUserField.getText());
 					utmodel = null;
 					table_users.setModel(getUserTableModel(usersList));
 				}
@@ -120,10 +121,10 @@ public class PermissionApplication extends JFrame {
 		btnNewButton_1.setBounds(474, 47, 89, 23);
 		getContentPane().add(btnNewButton_1);
 
-		text_search_users = new JTextField();
-		text_search_users.setBounds(29, 48, 435, 20);
-		getContentPane().add(text_search_users);
-		text_search_users.setColumns(10);
+		searchUserField = new ApplicationTextField();
+		searchUserField.setBounds(29, 48, 435, 20);
+		getContentPane().add(searchUserField);
+		searchUserField.setColumns(10);
 
 		final JScrollPane scrollPane_2 = new JScrollPane();
 		scrollPane_2.setBounds(29, 231, 534, 105);
@@ -174,7 +175,7 @@ public class PermissionApplication extends JFrame {
 		mntmPlugins.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final PluginWindow pluginWindow = new PluginWindow();
+				final PluginDialog pluginWindow = new PluginDialog();
 				pluginWindow.setVisible(true);
 			}
 		});
@@ -184,7 +185,7 @@ public class PermissionApplication extends JFrame {
 		mntmFuncionalidades.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final FeatureWindow featureWindow = new FeatureWindow();
+				final FeatureDialog featureWindow = new FeatureDialog();
 				featureWindow.setVisible(true);
 			}
 		});

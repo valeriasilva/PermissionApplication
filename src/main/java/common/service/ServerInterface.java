@@ -34,8 +34,6 @@ public interface ServerInterface extends Remote {
 
 	void deleteFeature(final long id) throws ServiceException, RemoteException;
 
-	List<Feature> findFeatureByName(final String name) throws ServiceException, RemoteException;
-
 	List<Feature> findAllFeatures() throws ServiceException, RemoteException;
 
 	List<Feature> findFeaturesByPlugin(final Long idPlugin) throws ServiceException, RemoteException;
@@ -55,8 +53,6 @@ public interface ServerInterface extends Remote {
 	List<Plugin> findPlugins() throws ServiceException, RemoteException;
 
 	Plugin findPluginById(final Long idPlugin) throws ServiceException, RemoteException;
-
-	List<Plugin> findPluginByName(final String name) throws ServiceException, RemoteException;
 
 	List<User> getUsersByName(final String name) throws ServiceException, RemoteException;
 

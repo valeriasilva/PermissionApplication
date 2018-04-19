@@ -13,22 +13,19 @@ public class PluginTableModel extends AbstractTableModel {
 	private static final int NAME = 0;
 	private static final int DESCRIPTION = 1;
 	private static final int CREATIONDATE = 2;
+	private static final int[] SEARCHABLE_COLS = new int[] { 0, 1, 2 };
 
-	private List<Plugin> rows;
+	private List<Plugin> items;
 
 	private String[] columns = new String[] { "Nome", "Descrição", "Data de Criação" };
 
 	public PluginTableModel() {
-		rows = new ArrayList<Plugin>();
-	}
-
-	public PluginTableModel(final List<Plugin> listaDePlugins) {
-		rows = new ArrayList<Plugin>(listaDePlugins);
+		items = new ArrayList<>();
 	}
 
 	@Override
 	public int getRowCount() {
-		return rows.size();
+		return items.size();
 	}
 
 	@Override
@@ -57,7 +54,7 @@ public class PluginTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(final int rowIndex, final int columnIndex) {
-		final Plugin Plugin = rows.get(rowIndex);
+		final Plugin Plugin = items.get(rowIndex);
 
 		switch (columnIndex) {
 		case NAME:
@@ -71,55 +68,22 @@ public class PluginTableModel extends AbstractTableModel {
 		}
 	}
 
-	// @Override
-	// public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
-	// final Plugin Plugin = rows.get(rowIndex);
-	//
-	// switch (columnIndex) {
-	// case NAME:
-	// Plugin.setName((String) aValue);
-	// break;
-	// case DESCRIPTION:
-	// Plugin.setDescription((String) aValue);
-	// break;
-	// case CREATIONDATE:
-	// Plugin.setCreationDate((Date) aValue);
-	// break;
-	// case PLUGIN:
-	// Plugin.setPlugin((Plugin) aValue);
-	// break;
-	// default:
-	// throw new IndexOutOfBoundsException("columnIndex out of bounds");
-	// }
-	//
-	// fireTableCellUpdated(rowIndex, columnIndex);
-	// }
-
 	public Plugin getPlugin(final int indiceLinha) {
-		return rows.get(indiceLinha);
-	}
-
-	public void addPlugin(final Plugin Plugin) {
-		rows.add(Plugin);
-		final int ultimoIndice = getRowCount() - 1;
-		fireTableRowsInserted(ultimoIndice, ultimoIndice);
+		return items.get(indiceLinha);
 	}
 
 	public void removePlugin(final int indiceLinha) {
-		rows.remove(indiceLinha);
+		items.remove(indiceLinha);
 		fireTableRowsDeleted(indiceLinha, indiceLinha);
 	}
 
-	public void addListaDePlugins(final List<Plugin> Plugins) {
-
-		final int indice = getRowCount();
-		rows.addAll(Plugins);
-		fireTableRowsInserted(indice, indice + Plugins.size());
+	public void setItems(List<Plugin> listPlugins) {
+		items.addAll(listPlugins);
+		fireTableDataChanged();
 	}
 
-	public void limpar() {
-		rows.clear();
-		fireTableDataChanged();
+	public static int[] getSearchableColumns() {
+		return SEARCHABLE_COLS;
 	}
 
 }

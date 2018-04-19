@@ -1,8 +1,10 @@
 package client.view;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -13,26 +15,29 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import client.controller.PluginController;
+import client.util.Util;
+import client.view.components.ApplicationTextField;
+import client.view.components.TextRowFilter;
 import client.view.tablemodels.PluginTableModel;
 import common.model.Plugin;
 import net.miginfocom.swing.MigLayout;
 
 public class PluginChooserDialog extends JDialog {
 
+	private static final int MIN_HEIGHT = 300;
+	private static final int MIN_WIDTH = (int) (MIN_HEIGHT * Util.GOLDEN_RATIO);
+	private static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_HEIGHT);
+
 	private JPanel contentPane;
-	private JTextField search_plugin_feature;
-	private JTable table_plugins;
-	private List<Plugin> pluginList = new ArrayList<Plugin>();
+	private ApplicationTextField searchField;
+	private JTable pluginsTable;
 	private PluginController pluginController = new PluginController();
 	private PluginTableModel ptmodel;
 	private Plugin pluginSelected;
 	private Plugin plugin = null;
-	private Action loadTableAction;
-	private Action searchAction;
 	private Action saveAction;
 
 	public PluginChooserDialog() {
@@ -43,36 +48,54 @@ public class PluginChooserDialog extends JDialog {
 		setTitle("Definir Plugin");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setContentPane(createContentPanel());
-		setLocationRelativeTo(null);
+		loadData();
 		setModal(true);
+		setMinimumSize(MIN_SIZE);
+		setPreferredSize(MIN_SIZE);
 		pack();
+		setLocationRelativeTo(null);
+	}
+
+	private void loadData() {
+		PluginTableModel model = (PluginTableModel) pluginsTable.getModel();
+		model.setItems(pluginController.listPlugins());
+	}
+
+	private KeyListener createSearchFieldListener() {
+		return new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent event) {
+				super.keyReleased(event);
+				String text = searchField.getText();
+				if (text.length() == 0) {
+					((TableRowSorter) pluginsTable.getRowSorter()).setRowFilter(null);
+				} else {
+					((TableRowSorter) pluginsTable.getRowSorter())
+							.setRowFilter(new TextRowFilter(text, PluginTableModel.getSearchableColumns()));
+				}
+			}
+		};
 	}
 
 	private JPanel createContentPanel() {
 
-		search_plugin_feature = new JTextField();
+		pluginsTable = new JTable(new PluginTableModel());
+		pluginsTable.setAutoCreateRowSorter(true);
 
-		final JButton searchBtn = new JButton(getSearchAction());
+		searchField = new ApplicationTextField();
+		searchField.addKeyListener(createSearchFieldListener());
 
-		table_plugins = new JTable(getPluginTableModel());
-
-		final JButton loadButton = new JButton(getLoadTableAction());
-
-		final JButton selectBtn = new JButton(getSaveAction());
-
-		contentPane = new JPanel(new MigLayout("", "[grow][][]", "[][grow][]"));
-		contentPane.add(search_plugin_feature, "grow");
-		contentPane.add(searchBtn, "sg btns");
-		contentPane.add(loadButton, "sg btns, wrap");
-		contentPane.add(new JScrollPane(table_plugins), "grow, wrap, spanx");
-		contentPane.add(selectBtn, "sg btns, skip 2");
+		contentPane = new JPanel(new MigLayout("", "[grow]", "[][grow][]"));
+		contentPane.add(searchField, "grow, wrap");
+		contentPane.add(new JScrollPane(pluginsTable), "grow, wrap");
+		contentPane.add(new JButton(getConfirmAction()), "ax right");
 
 		return contentPane;
 	}
 
-	private Action getSaveAction() {
+	private Action getConfirmAction() {
 		if (saveAction == null) {
-			saveAction = new AbstractAction("Salvar") {
+			saveAction = new AbstractAction("Confirmar") {
 				@Override
 				public void actionPerformed(final ActionEvent e) {
 					choosePlugin();
@@ -82,52 +105,8 @@ public class PluginChooserDialog extends JDialog {
 		return saveAction;
 	}
 
-	private Action getSearchAction() {
-		if (searchAction == null) {
-			searchAction = new AbstractAction("Buscar") {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					final String searchString = search_plugin_feature.getText();
-					if (searchString.isEmpty() != true) {
-						pluginList = pluginController.searchPluginByName(searchString);
-						ptmodel = null;
-						table_plugins.setModel(getPluginTableModel(pluginList));
-					}
-				}
-			};
-		}
-		return searchAction;
-	}
-
-	private Action getLoadTableAction() {
-		if (loadTableAction == null) {
-			loadTableAction = new AbstractAction("Carregar tabela") {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					ptmodel = null;
-					table_plugins.setModel(getPluginTableModel());
-				}
-			};
-		}
-		return loadTableAction;
-	}
-
-	private TableModel getPluginTableModel(final List<Plugin> pList) {
-		if (ptmodel == null) {
-			ptmodel = new PluginTableModel(pList);
-		}
-		return ptmodel;
-	}
-
-	private TableModel getPluginTableModel() {
-		if (ptmodel == null) {
-			ptmodel = new PluginTableModel(new PluginController().listPlugins());
-		}
-		return ptmodel;
-	}
-
 	private void choosePlugin() {
-		final int tableIndex = table_plugins.getSelectedRow();
+		final int tableIndex = pluginsTable.getSelectedRow();
 
 		if (tableIndex < 0) {
 			JOptionPane.showMessageDialog(null, "Selecione um Plugin");

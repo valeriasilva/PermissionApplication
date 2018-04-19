@@ -5,7 +5,6 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -15,12 +14,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableModel;
 
 import client.controller.FeatureController;
 import client.controller.PermissionController;
+import client.view.components.ApplicationTextField;
 import client.view.tablemodels.FeatureTableModel;
 import common.model.Feature;
 import common.model.User;
@@ -28,7 +27,7 @@ import common.model.User;
 public class FeaturePermissionChooserDialog extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
-	private JTextField text_featureSearch;
+	private ApplicationTextField text_featureSearch;
 	private FeatureTableModel ftmodel;
 	private JTable table_features;
 	private List<Feature> featureList;
@@ -66,24 +65,10 @@ public class FeaturePermissionChooserDialog extends JDialog {
 			scrollPane.setViewportView(table_features);
 		}
 
-		text_featureSearch = new JTextField();
+		text_featureSearch = new ApplicationTextField();
 		text_featureSearch.setColumns(10);
 		text_featureSearch.setBounds(20, 55, 455, 20);
 		contentPanel.add(text_featureSearch);
-
-		final JButton button = new JButton("Buscar");
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				featureList = new ArrayList<Feature>(
-						featureController.searchFeatureByName(text_featureSearch.getText()));
-				ftmodel = null;
-				table_features.setModel(getFeatureTableModel(featureList));
-			}
-		});
-		button.setBounds(485, 52, 89, 23);
-		contentPanel.add(button);
 
 		label_userSelected = new JLabel();
 		label_userSelected.setBounds(20, 23, 554, 14);
@@ -113,7 +98,6 @@ public class FeaturePermissionChooserDialog extends JDialog {
 										permissionController.listFeaturesPermittedFor(userSelected.getId()));
 								mainWindow.getTable_featuresPermission().setModel(ftmodel);
 							} catch (final ParseException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 							setVisible(false);

@@ -94,38 +94,4 @@ public class PluginDAO extends GenericDAO {
 		}
 		return plugin;
 	}
-
-	public List<Plugin> findByName(final String name) throws ServerException {
-		final String select = "SELECT * FROM Plugin WHERE name LIKE ?";
-		Plugin plugin = null;
-		final List<Plugin> plugins = new ArrayList<Plugin>();
-		PreparedStatement stmt = null;
-		ResultSet rs = null;		
-		try {
-			stmt = getConnection().prepareStatement(select);
-			stmt.setString(1, '%' + name + '%');
-			rs = stmt.executeQuery();
-
-			while (rs.next()) {
-				plugin = new Plugin();
-				plugin.setId(rs.getLong("id"));
-				plugin.setName(rs.getString("name"));
-				plugin.setDescription(rs.getString("description"));
-				plugin.setCreationDate(rs.getTimestamp("creationDate"));
-				plugins.add(plugin);
-			}
-		} catch (SQLException e) {
-			throw new ServerException("Não foi possível buscar plugins pelo nome"+ e.getStackTrace());
-		}finally {
-			try {
-				rs.close();
-				stmt.close();
-				getConnection().close();
-			} catch (SQLException e) {
-				//Log
-				e.getStackTrace();
-			}
-		}
-		return plugins;
-	}
 }

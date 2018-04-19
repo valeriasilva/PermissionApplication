@@ -68,46 +68,6 @@ public class FeatureDAO extends GenericDAO {
 		return features;
 	}
 
-	public List<Feature> findFeatureByName(final String name) throws ServerException {
-		final String select = "SELECT * FROM Feature WHERE name LIKE ?";
-		Feature feature = null;
-		final List<Feature> features = new ArrayList<Feature>();
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		try {
-			stmt = getConnection().prepareStatement(select);
-
-			stmt.setString(1, '%' + name + '%');
-			rs = stmt.executeQuery();
-
-			while (rs.next()) {
-				feature = new Feature();
-				Plugin plugin = new Plugin();
-				if (rs.getLong("plugin_id") > 0) {
-					plugin = new PluginDAO().findPluginById(rs.getLong("plugin_id"));
-					feature.setPlugin(plugin);
-				}
-				feature.setId(rs.getLong("id"));
-				feature.setName(rs.getString("name"));
-				feature.setDescription(rs.getString("description"));
-				feature.setCreationDate(rs.getTimestamp("creationDate"));
-				features.add(feature);
-			}
-		} catch (SQLException e) {
-			throw new ServerException("Não foi possível buscar funcionalidades " + e.getMessage());
-		} finally {
-			try {
-				rs.close();
-				stmt.close();
-				getConnection().close();
-			} catch (SQLException e) {
-				// Log
-				e.printStackTrace();
-			}
-		}
-		return features;
-	}
-
 	public Feature findFeatureById(final Long featureId) throws ServerException {
 		final Feature feature = new Feature();
 		final String select = "SELECT * FROM Feature WHERE id = ?";

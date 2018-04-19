@@ -117,21 +117,6 @@ public class Server implements ServerInterface {
 	}
 
 	@Override
-	public List<Feature> findFeatureByName(final String name) throws ServiceException {
-		try {
-			featureDao = new FeatureDAO();
-		} catch (ServerException e1) {
-			throw new ServiceException(
-					"Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
-		}
-		try {
-			return featureDao.findFeatureByName(name);
-		} catch (ServerException e) {
-			throw new ServiceException("Falha ao pesquisar usuários. " + e.getMessage());
-		}
-	}
-
-	@Override
 	public List<Feature> findAllFeatures() throws ServiceException {
 		try {
 			featureDao = new FeatureDAO();
@@ -239,21 +224,6 @@ public class Server implements ServerInterface {
 		}
 		try {
 			return pluginDao.findPluginById(idPlugin);
-		} catch (ServerException e) {
-			throw new ServiceException("Falha ao pesquisar usuários. " + e.getMessage());
-		}
-	}
-
-	@Override
-	public List<Plugin> findPluginByName(final String name) throws ServiceException {
-		try {
-			pluginDao = new PluginDAO();
-		} catch (ServerException e1) {
-			throw new ServiceException(
-					"Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
-		}
-		try {
-			return pluginDao.findByName(name);
 		} catch (ServerException e) {
 			throw new ServiceException("Falha ao pesquisar usuários. " + e.getMessage());
 		}

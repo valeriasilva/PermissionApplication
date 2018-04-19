@@ -71,18 +71,6 @@ public class FeatureController extends Controller {
 		}
 	}
 
-	public List<Feature> searchFeatureByName(final String text) {
-		try {
-			return ServiceLocator.getServer().findFeatureByName(text);
-		} catch (final ServiceException e) {
-			showError(parentComponent,
-					"Problemas na tentativa de buscar funcionalidades pelo nome. \n" + e.getMessage());
-		} catch (RemoteException e) {
-			showError(parentComponent, "Problemas ao conectar com o servidor remoto. \n" + e.getMessage());
-		}
-		return Collections.emptyList();
-	}
-
 	public List<Feature> searchFeatureNotPermittedByName(final String name, final Long userId) {
 		try {
 			return ServiceLocator.getServer().findFeatureNotPermittedByName(name, userId);

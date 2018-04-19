@@ -68,17 +68,6 @@ public class PluginController extends Controller {
 		}
 	}
 
-	public List<Plugin> searchPluginByName(final String name) {
-		try {
-			return ServiceLocator.getServer().findPluginByName(name);
-		} catch (final ServiceException e) {
-			showError(null, "Problemas na tentativa de buscar plugin por nome. \n" + e.getMessage());
-		} catch (RemoteException e) {
-			showError(null, "Problemas na conexão remota com o servidor. \n" + e.getMessage());
-		}
-		return Collections.emptyList();
-	}
-
 	public List<Feature> getFeaturesByPlugin(final Long pluginId) {
 		return featureController.getFeaturesByPlugin(pluginId);
 	}

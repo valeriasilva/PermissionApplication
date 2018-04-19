@@ -11,21 +11,22 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import client.controller.FeatureController;
 import client.util.Util;
+import client.view.components.ApplicationTextField;
 import client.view.tablemodels.FeatureTableModel;
 import common.model.Feature;
 import net.miginfocom.swing.MigLayout;
 
-public class FeatureWindow extends JFrame {
+public class FeatureDialog extends JDialog {
 
 	private static final int MIN_HEIGHT = 500;
 	private static final int MIN_WIDTH = (int) (MIN_HEIGHT * Util.GOLDEN_RATIO);
@@ -33,13 +34,12 @@ public class FeatureWindow extends JFrame {
 
 	private final FeatureController featureController;
 
-	private JTextField featureNameField;
-	private JTextField searchFeatureField;
+	private ApplicationTextField featureNameField;
+	private ApplicationTextField searchFeatureField;
 	private JTextArea featureDescriptionArea;
-	private List<Feature> featureList;
 	private JTable table;
 	private FeatureTableModel ftmodel;
-	private JTextField pluginOfFeature;
+	private ApplicationTextField pluginOfFeature;
 	private Feature feature = null;
 	private PluginChooserDialog setPluginWindow;
 	private AbstractAction saveAction;
@@ -47,7 +47,7 @@ public class FeatureWindow extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public FeatureWindow() {
+	public FeatureDialog() {
 		featureController = new FeatureController(this);
 		setPluginWindow = new PluginChooserDialog();
 		buildGUI();
@@ -59,31 +59,22 @@ public class FeatureWindow extends JFrame {
 		setContentPane(createContentPane());
 		setMinimumSize(MIN_SIZE);
 		setLocationRelativeTo(null);
+		setModal(true);
 	}
 
 	private Container createContentPane() {
 
-		searchFeatureField = new JTextField();
-
-		final JButton searchBtn = new JButton("Buscar");
-		searchBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				featureList = featureController.searchFeatureByName(searchFeatureField.getText());
-				ftmodel = null;
-				table.setModel(getFeatureTableModel(featureList));
-			}
-		});
+		searchFeatureField = new ApplicationTextField();
 
 		table = new JTable(getFeatureTableModel());
 		table.addMouseListener(createMouseListenerForTable());
 
-		featureNameField = new JTextField();
+		featureNameField = new ApplicationTextField();
 
 		featureDescriptionArea = new JTextArea();
 		featureDescriptionArea.setLineWrap(true);
 
-		pluginOfFeature = new JTextField("");
+		pluginOfFeature = new ApplicationTextField("");
 		pluginOfFeature.setEditable(false);
 
 		final JButton btnPlugin = new JButton("...");
@@ -104,8 +95,7 @@ public class FeatureWindow extends JFrame {
 		});
 
 		JPanel contentPane = new JPanel(new MigLayout("ins 10", "[right][grow][right][grow]", "[][grow][][grow][][]"));
-		contentPane.add(searchFeatureField, "spanx 4, grow, split 3");
-		contentPane.add(searchBtn, "sg btn1");
+		contentPane.add(searchFeatureField, "spanx 4, grow, split 2");
 		contentPane.add(newfeatureBtn, "wrap, sg btn1");
 		contentPane.add(new JScrollPane(table), "grow, wrap, spanx");
 		contentPane.add(new JLabel("Nome:"));
