@@ -1,210 +1,196 @@
 package client.view;
 
-import java.awt.EventQueue;
-import java.awt.Font;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableModel;
 
 import client.controller.PluginController;
+import client.util.Util;
+import client.view.components.DescriptionTextArea;
 import client.view.tablemodels.FeatureTableModel;
 import client.view.tablemodels.PluginTableModel;
 import common.model.Feature;
 import common.model.Plugin;
+import net.miginfocom.swing.MigLayout;
 
 public class PluginWindow extends JFrame {
 
+	private static final int MIN_HEIGHT = 500;
+	private static final int MIN_WIDTH = (int) (MIN_HEIGHT * Util.GOLDEN_RATIO);
+	private static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_HEIGHT);
+
 	private JPanel contentPane;
-	private JTextField name_plugin;
-	private JTable table_plugins;
-	private JTextField search_plugin;
-	private JTextArea description_plugin;
+	private JTextField pluginNameTField;
+	private JTable pluginsTable;
+	private JTextField pluginSearchJTField;
+	private DescriptionTextArea pluginDescriptionJTArea;
 	private List<Plugin> pluginList = new PluginController().listPlugins();
 	private Plugin plugin = null;
 	private PluginController pluginController = new PluginController();
 	private PluginTableModel ptmodel;
 	private FeatureTableModel ftmodel = new FeatureTableModel();
-	private JTable table_featuresOfPlugin;
+	private JTable pluginFeaturesTable;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(final String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					final PluginWindow frame = new PluginWindow();
-					frame.setVisible(true);
-				} catch (final Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+	public PluginWindow() {
+		buildGUI();
 	}
 
-	/**
-	 * Create the frame.
-	 */
-	public PluginWindow() {
+	private void buildGUI() {
 		setTitle("Plugins");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 894, 526);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
+		setContentPane(createContentPane());
+		setMinimumSize(MIN_SIZE);
+		setLocationRelativeTo(null);
+	}
 
-		final JLabel lblLogin = new JLabel("Nome");
-		lblLogin.setBounds(20, 111, 46, 14);
-		contentPane.add(lblLogin);
+	private Container createContentPane() {
 
-		final JLabel lblName = new JLabel("Descrição");
-		lblName.setBounds(20, 157, 70, 14);
-		contentPane.add(lblName);
+		pluginNameTField = new JTextField();
+		pluginSearchJTField = new JTextField();
+		pluginDescriptionJTArea = new DescriptionTextArea();
+		JButton btnSearchPlugin = new JButton(createSearchAction());
+		pluginsTable = new JTable(getPluginTableModel());
+		pluginsTable.addMouseListener(createMouseListenerForTablePlugins());
 
-		name_plugin = new JTextField();
-		name_plugin.setBounds(20, 126, 188, 20);
-		contentPane.add(name_plugin);
-		name_plugin.setColumns(10);
+		contentPane = new JPanel(new MigLayout("ins 10", "[right][grow][right]", "[][grow][][grow][grow][]"));
+		contentPane.add(pluginSearchJTField, "spanx 2, grow");
+		contentPane.add(btnSearchPlugin, "sg btn1, wrap");
 
-		final JButton btnSalvar = new JButton("Salvar");
-		btnSalvar.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				onClickSave();
-			}
+		contentPane.add(new JScrollPane(pluginsTable), "spanx, grow, wrap");
 
-		});
-		btnSalvar.setBounds(20, 244, 89, 23);
-		contentPane.add(btnSalvar);
+		contentPane.add(new JLabel("Nome"));
+		contentPane.add(pluginNameTField, "spanx 2, grow, wrap");
 
-		final JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(263, 76, 508, 165);
-		contentPane.add(scrollPane);
+		contentPane.add(new JLabel("Descrição"));
+		contentPane.add(pluginDescriptionJTArea, "spanx 2, grow, wrap");
 
-		table_plugins = new JTable(getPluginTableModel());
-		scrollPane.setViewportView(table_plugins);
+		contentPane.add(createFeaturesTablePanel(), "spanx, grow, wrap");
+		contentPane.add(createControlPanel(), "spanx, ax right");
 
-		table_plugins.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(final java.awt.event.MouseEvent evt) {
-				fillFields();
-				table_featuresOfPlugin.setModel(getFeaturesByPlugin());
-			}
-		});
+		return contentPane;
+	}
 
-		final JButton btnExcluir = new JButton("Excluir");
-		btnExcluir.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				deletePlugin();
-			}
-		});
-		btnExcluir.setBounds(776, 76, 87, 23);
-		contentPane.add(btnExcluir);
+	private Component createFeaturesTablePanel() {
 
-		search_plugin = new JTextField();
-		search_plugin.setBounds(263, 45, 409, 20);
-		contentPane.add(search_plugin);
-		search_plugin.setColumns(10);
+		pluginFeaturesTable = new JTable(ftmodel);
 
-		final JButton btnBuscar = new JButton("Buscar");
-		btnBuscar.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				if (search_plugin.getText() != "") {
-					pluginList = pluginController.searchPluginByName(search_plugin.getText());
-					ptmodel = null;
-					table_plugins.setModel(getPluginTableModel(pluginList));
-				}
-			}
-		});
-		btnBuscar.setBounds(682, 44, 89, 23);
-		contentPane.add(btnBuscar);
+		JPanel featuresTablePane = new JPanel(new MigLayout("ins 0", "[grow]", "[grow]"));
+		featuresTablePane.add(new JScrollPane(pluginFeaturesTable), "grow");
 
-		final JLabel lblPlugins = new JLabel("Plugins");
-		lblPlugins.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblPlugins.setBounds(410, 0, 58, 28);
-		contentPane.add(lblPlugins);
+		featuresTablePane.setBorder(BorderFactory.createTitledBorder("Funcionalidades associadas"));
 
-		final JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(20, 171, 188, 62);
-		contentPane.add(scrollPane_1);
+		return featuresTablePane;
+	}
 
-		description_plugin = new JTextArea();
-		scrollPane_1.setViewportView(description_plugin);
-		description_plugin.setLineWrap(true);
+	private Component createControlPanel() {
 
-		final JButton btnNovo = new JButton("Novo");
-		btnNovo.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				newPlugin();
-			}
-		});
-		btnNovo.setBounds(20, 62, 89, 23);
-		contentPane.add(btnNovo);
+		JButton btnSave = new JButton(createSaveAction());
+		JButton btnDelete = new JButton(createDeleteAction());
+		JButton btnNewPlugin = new JButton(createNewPluginAction());
+		JButton btnCancel = new JButton(createCancelAction());
 
-		final JSeparator separator = new JSeparator();
-		separator.setOrientation(SwingConstants.VERTICAL);
-		separator.setBounds(233, 44, 20, 419);
-		contentPane.add(separator);
+		JPanel controlPane = new JPanel(new MigLayout("", "", ""));
+		controlPane.add(btnSave, "sg btns, ax right");
+		controlPane.add(btnDelete, "sg btns, ax right");
+		controlPane.add(btnNewPlugin, "sg btns, ax right");
+		controlPane.add(btnCancel, "sg btns, ax right");
 
-		final JScrollPane scrollPane_2 = new JScrollPane();
-		scrollPane_2.setBounds(263, 281, 508, 152);
-		contentPane.add(scrollPane_2);
+		return controlPane;
+	}
 
-		table_featuresOfPlugin = new JTable(ftmodel);
-		scrollPane_2.setViewportView(table_featuresOfPlugin);
-
-		final JLabel label = new JLabel("Funcionalidades do Plugin selecionado:");
-		label.setBounds(263, 264, 286, 14);
-		contentPane.add(label);
-
-		final JButton btnSair = new JButton("Cancelar");
-		btnSair.addActionListener(new ActionListener() {
+	private Action createCancelAction() {
+		return new AbstractAction("Cancelar") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				setVisible(false);
 			}
-		});
-		btnSair.setBounds(774, 451, 89, 23);
-		contentPane.add(btnSair);
+		};
+	}
+
+	private Action createNewPluginAction() {
+		return new AbstractAction("Novo Plugin") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				newPlugin();
+			}
+		};
+	}
+
+	private Action createSearchAction() {
+		return new AbstractAction("Buscar") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (pluginSearchJTField.getText() != "") {
+					pluginList = pluginController.searchPluginByName(pluginSearchJTField.getText());
+					ptmodel = null;
+					pluginsTable.setModel(getPluginTableModel(pluginList));
+				}
+			}
+		};
+	}
+
+	private MouseAdapter createMouseListenerForTablePlugins() {
+		return new MouseAdapter() {
+			@Override
+			public void mouseClicked(final java.awt.event.MouseEvent evt) {
+				fillFields();
+				pluginFeaturesTable.setModel(getFeaturesByPlugin());
+			}
+		};
+	}
+
+	private Action createSaveAction() {
+		return new AbstractAction("Salvar") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				onClickSave();
+			}
+		};
+	}
+
+	private Action createDeleteAction() {
+		return new AbstractAction("Excluir") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				deletePlugin();
+			}
+		};
 	}
 
 	private void onClickSave() {
 		// Se a a variável plugin for null, trata-se de um insert
 		if (plugin == null) {
-			pluginController.save(name_plugin.getText(), description_plugin.getText());
+			pluginController.save(pluginNameTField.getText(), pluginDescriptionJTArea.getText());
 			ptmodel = null;
-			table_plugins.setModel(getPluginTableModel());
+			pluginsTable.setModel(getPluginTableModel());
 
 			showMessage("Plugin salvo com sucesso!");
 			clearFields();
 		} else {
 			// se a variável plugin não for nula, trata-se de um update
-			plugin.setName(name_plugin.getText());
-			plugin.setDescription(description_plugin.getText());
+			plugin.setName(pluginNameTField.getText());
+			plugin.setDescription(pluginDescriptionJTArea.getText());
 
 			updatePlugin(plugin);
 			ptmodel = null;
-			table_plugins.setModel(getPluginTableModel());
+			pluginsTable.setModel(getPluginTableModel());
 			clearFields();
 		}
 	}
@@ -233,7 +219,7 @@ public class PluginWindow extends JFrame {
 	}
 
 	private void deletePlugin() {
-		final int tableIndex = table_plugins.getSelectedRow();
+		final int tableIndex = pluginsTable.getSelectedRow();
 
 		if (tableIndex < 0) {
 			showMessage("Selecione um  Plugin para remover");
@@ -259,13 +245,13 @@ public class PluginWindow extends JFrame {
 	private void fillFields() {
 		plugin = getSelectedPluginFromTable();
 
-		name_plugin.setText(plugin.getName());
-		description_plugin.setText(plugin.getDescription());
+		pluginNameTField.setText(plugin.getName());
+		pluginDescriptionJTArea.setText(plugin.getDescription());
 	}
 
 	private Plugin getSelectedPluginFromTable() {
 		Plugin p = new Plugin();
-		final int tableIndex = table_plugins.getSelectedRow();
+		final int tableIndex = pluginsTable.getSelectedRow();
 
 		if (tableIndex >= 0) {
 			p = ptmodel.getPlugin(tableIndex);
@@ -281,7 +267,7 @@ public class PluginWindow extends JFrame {
 	}
 
 	private void clearFields() {
-		name_plugin.setText("");
-		description_plugin.setText("");
+		pluginNameTField.setText("");
+		pluginDescriptionJTArea.setText("");
 	}
 }
