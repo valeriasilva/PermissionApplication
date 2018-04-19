@@ -1,7 +1,6 @@
 package client.view;
 
 import java.awt.EventQueue;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -34,7 +33,7 @@ public class PermissionApplication extends JFrame {
 	private final UserController userController;
 	private final PermissionController permissionController;
 
-	private JTable table_users;
+	private JTable usersTables;
 	private UserTableModel utmodel;
 	private ApplicationTextField searchUserField;
 	private JTable table_featuresPermission;
@@ -85,41 +84,20 @@ public class PermissionApplication extends JFrame {
 		scrollPane_1.setBounds(29, 75, 534, 128);
 		getContentPane().add(scrollPane_1);
 
-		table_users = new JTable(getUserTableModel());
-		table_users.setAutoCreateRowSorter(true);
-		scrollPane_1.setViewportView(table_users);
+		usersTables = new JTable(getUserTableModel());
+		usersTables.setAutoCreateRowSorter(true);
+		scrollPane_1.setViewportView(usersTables);
 
-		table_users.addMouseListener(new MouseAdapter() {
+		usersTables.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(final java.awt.event.MouseEvent evt) {
 				table_featuresPermission.setModel(getFeaturesPermittedForSelectedUser());
 			}
 		});
 
-		lblFuncionalidadesPermitidas = new JLabel("Funcionalidades permitidas: ");
+		lblFuncionalidadesPermitidas = new JLabel("Permissões: ");
 		lblFuncionalidadesPermitidas.setBounds(29, 214, 195, 14);
 		getContentPane().add(lblFuncionalidadesPermitidas);
-
-		final JLabel lblAtribuirPermisses = new JLabel("Permissões de Funcionalidades");
-		lblAtribuirPermisses.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblAtribuirPermisses.setBounds(193, 0, 247, 23);
-		getContentPane().add(lblAtribuirPermisses);
-
-		final JButton btnNewButton_1 = new JButton("Buscar");
-		btnNewButton_1.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				List<User> usersList = new ArrayList<User>();
-
-				if (searchUserField.getText() != "") {
-					usersList = userController.listUsersByName(searchUserField.getText());
-					utmodel = null;
-					table_users.setModel(getUserTableModel(usersList));
-				}
-			}
-		});
-		btnNewButton_1.setBounds(474, 47, 89, 23);
-		getContentPane().add(btnNewButton_1);
 
 		searchUserField = new ApplicationTextField();
 		searchUserField.setBounds(29, 48, 435, 20);
@@ -133,7 +111,7 @@ public class PermissionApplication extends JFrame {
 		table_featuresPermission = new JTable(ftmodel);
 		scrollPane_2.setViewportView(table_featuresPermission);
 
-		final JButton btnIncluir = new JButton("Incluir Permissão");
+		final JButton btnIncluir = new JButton("Incluir");
 		btnIncluir.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -143,12 +121,12 @@ public class PermissionApplication extends JFrame {
 		btnIncluir.setBounds(29, 344, 144, 23);
 		getContentPane().add(btnIncluir);
 
-		final JButton btnExcluirPermisso = new JButton("Excluir Permissão");
+		final JButton btnExcluirPermisso = new JButton("Excluir");
 		btnExcluirPermisso.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				final int tableFeaturesIndex = table_featuresPermission.getSelectedRow();
-				final int tableUsersIndex = table_users.getSelectedRow();
+				final int tableUsersIndex = usersTables.getSelectedRow();
 
 				if (tableFeaturesIndex < 0) {
 					applicationController.showInfo(PermissionApplication.this,
@@ -209,28 +187,25 @@ public class PermissionApplication extends JFrame {
 		return utmodel;
 	}
 
-	private TableModel getUserTableModel(final List<User> users) {
-		if (utmodel == null) {
-			utmodel = new UserTableModel(users);
-		}
-		return utmodel;
-	}
-
 	public void openDialogPermission() {
-		final int tableIndex = table_users.getSelectedRow();
+		final int tableIndex = usersTables.getSelectedRow();
 
 		if (tableIndex < 0) {
 			applicationController.showInfo(this, "Selecione o usuário ao qual pretente atribuir nova permissão");
 		} else {
-			final User userSelected = utmodel.getUser(tableIndex);
-			final FeaturePermissionChooserDialog windowToSetPermission = new FeaturePermissionChooserDialog(
-					userSelected, this);
-			windowToSetPermission.setVisible(true);
+			final User selectedUser = utmodel.getUser(tableIndex);
+			final FeaturePermissionChooserDialog permissionInsertDialog = new FeaturePermissionChooserDialog(
+					selectedUser);
+			permissionInsertDialog.setVisible(true);
+			Feature feature = permissionInsertDialog.getCreatedFeature();
+			if (feature != null) {
+				ftmodel.addFeature(feature);
+			}
 		}
 	}
 
 	private TableModel getFeaturesPermittedForSelectedUser() {
-		final int tableIndex = table_users.getSelectedRow();
+		final int tableIndex = usersTables.getSelectedRow();
 		List<Feature> featuresPermitted = new ArrayList<Feature>();
 
 		if (tableIndex >= 0) {
@@ -242,35 +217,4 @@ public class PermissionApplication extends JFrame {
 		return ftmodel;
 	}
 
-	public JTable getTable_users() {
-		return table_users;
-	}
-
-	public void setTable_users(final JTable table_users) {
-		this.table_users = table_users;
-	}
-
-	public JLabel getLabel_permissoes() {
-		return lblFuncionalidadesPermitidas;
-	}
-
-	public void setLabel_permissoes(final JLabel label_permissoes) {
-		this.lblFuncionalidadesPermitidas = label_permissoes;
-	}
-
-	public JTable getTable_featuresPermission() {
-		return table_featuresPermission;
-	}
-
-	public void setTable_featuresPermission(final JTable table_featuresPermission) {
-		this.table_featuresPermission = table_featuresPermission;
-	}
-
-	public FeatureTableModel getFtmodel() {
-		return ftmodel;
-	}
-
-	public void setFtmodel(final FeatureTableModel ftmodel) {
-		this.ftmodel = ftmodel;
-	}
 }

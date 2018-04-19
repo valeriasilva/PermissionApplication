@@ -1,30 +1,27 @@
 package common.model;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-
-import client.util.Util;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Plugin implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-
-	public Plugin() {
-		this.setName("");
-		this.setDescription("");
-		this.setFeatures(new ArrayList<Feature>());
-		this.setCreationDate(Util.getCurrentDateFormated());
-	}
 
 	private Long id;
 	private String name;
 	private String description;
-	private Timestamp creationDate;
-	private ArrayList<Feature> features;
+	private Date creationDate;
+	private List<Feature> features;
+
+	public Plugin() {
+		this.setName("");
+		this.setDescription("");
+		this.setCreationDate(Calendar.getInstance().getTime());
+		this.features = new LinkedList<>();
+	}
 
 	public Long getId() {
 		return id;
@@ -50,20 +47,16 @@ public class Plugin implements Serializable {
 		this.description = description;
 	}
 
-	public Timestamp getCreationDate() {
+	public Date getCreationDate() {
 		return creationDate;
 	}
 
-	public void setCreationDate(final Timestamp creationDate) {
+	public void setCreationDate(final Date creationDate) {
 		this.creationDate = creationDate;
 	}
 
-	public ArrayList<Feature> getFeatures() {
+	public List<Feature> getFeatures() {
 		return features;
-	}
-
-	public void setFeatures(final ArrayList<Feature> features) {
-		this.features = features;
 	}
 
 }

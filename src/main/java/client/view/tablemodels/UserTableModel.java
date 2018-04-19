@@ -14,21 +14,16 @@ public class UserTableModel extends AbstractTableModel {
 	private static final int STATUS = 2;
 	private static final int CURRENTMANAGEMENT = 3;;
 
-	private List<User> rows;
+	private String[] columns = new String[] { "Nome", "Login", "Ativo", "Gerência Atual" };
+	private List<User> data;
 
-	private String[] columns = new String[] { "Nome", "Login", "Status", "Gerência Atual" };
-
-	public UserTableModel() {
-		rows = new ArrayList<User>();
-	}
-
-	public UserTableModel(final List<User> listaDeUsers) {
-		rows = new ArrayList<User>(listaDeUsers);
+	public UserTableModel(List<User> users) {
+		data = new ArrayList<>(users);
 	}
 
 	@Override
 	public int getRowCount() {
-		return rows.size();
+		return data.size();
 	}
 
 	@Override
@@ -59,71 +54,23 @@ public class UserTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(final int rowIndex, final int columnIndex) {
-		final User User = rows.get(rowIndex);
-
+		final User user = data.get(rowIndex);
 		switch (columnIndex) {
 		case FULLNAME:
-			return User.getFullname();
+			return user.getFullname();
 		case STATUS:
-			return User.isStatus();
+			return user.isStatus();
 		case CURRENTMANAGEMENT:
-			return User.getCurrentManagement();
+			return user.getCurrentManagement();
 		case LOGIN:
-			return User.getLogin();
+			return user.getLogin();
 		default:
 			throw new IndexOutOfBoundsException("columnIndex out of bounds");
 		}
 	}
 
-	// @Override
-	// public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
-	// final User User = rows.get(rowIndex);
-	//
-	// switch (columnIndex) {
-	// case FULLNAME:
-	// User.setName((String) aValue);
-	// break;
-	// case STATUS:
-	// User.setDescription((String) aValue);
-	// break;
-	// case CURRENTMANAGEMENT:
-	// User.setCreationDate((Date) aValue);
-	// break;
-	// case LOGIN:
-	// User.setPlugin((Plugin) aValue);
-	// break;
-	// default:
-	// throw new IndexOutOfBoundsException("columnIndex out of bounds");
-	// }
-	//
-	// fireTableCellUpdated(rowIndex, columnIndex);
-	// }
-
 	public User getUser(final int indiceLinha) {
-		return rows.get(indiceLinha);
-	}
-
-	public void addUser(final User User) {
-		rows.add(User);
-		final int ultimoIndice = getRowCount() - 1;
-		fireTableRowsInserted(ultimoIndice, ultimoIndice);
-	}
-
-	public void removeUser(final int indiceLinha) {
-		rows.remove(indiceLinha);
-		fireTableRowsDeleted(indiceLinha, indiceLinha);
-	}
-
-	public void addListaDeUsers(final List<User> Users) {
-
-		final int indice = getRowCount();
-		rows.addAll(Users);
-		fireTableRowsInserted(indice, indice + Users.size());
-	}
-
-	public void limpar() {
-		rows.clear();
-		fireTableDataChanged();
+		return data.get(indiceLinha);
 	}
 
 }

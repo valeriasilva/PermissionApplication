@@ -11,10 +11,12 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
 import client.controller.PluginController;
@@ -31,17 +33,21 @@ public class PluginChooserDialog extends JDialog {
 	private static final int MIN_WIDTH = (int) (MIN_HEIGHT * Util.GOLDEN_RATIO);
 	private static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_HEIGHT);
 
-	private JPanel contentPane;
 	private ApplicationTextField searchField;
 	private JTable pluginsTable;
 	private PluginController pluginController = new PluginController();
 	private PluginTableModel ptmodel;
-	private Plugin pluginSelected;
-	private Plugin plugin = null;
-	private Action saveAction;
+	private Action confirmAction;
+	private Plugin selectedPlugin;
 
 	public PluginChooserDialog() {
 		buildGUI();
+		resetFields();
+	}
+
+	private void resetFields() {
+		this.selectedPlugin = null;
+		updateControls();
 	}
 
 	private void buildGUI() {
@@ -57,7 +63,7 @@ public class PluginChooserDialog extends JDialog {
 	}
 
 	private void loadData() {
-		PluginTableModel model = (PluginTableModel) pluginsTable.getModel();
+		PluginTableModel model = (PluginTableModel) getPluginsTable().getModel();
 		model.setItems(pluginController.listPlugins());
 	}
 
@@ -68,67 +74,77 @@ public class PluginChooserDialog extends JDialog {
 				super.keyReleased(event);
 				String text = searchField.getText();
 				if (text.length() == 0) {
-					((TableRowSorter) pluginsTable.getRowSorter()).setRowFilter(null);
+					((TableRowSorter) getPluginsTable().getRowSorter()).setRowFilter(null);
 				} else {
-					((TableRowSorter) pluginsTable.getRowSorter())
+					((TableRowSorter) getPluginsTable().getRowSorter())
 							.setRowFilter(new TextRowFilter(text, PluginTableModel.getSearchableColumns()));
 				}
 			}
 		};
 	}
 
+	private JTable getPluginsTable() {
+		if (pluginsTable == null) {
+			pluginsTable = new JTable(new PluginTableModel());
+			pluginsTable.setAutoCreateRowSorter(true);
+			pluginsTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			pluginsTable.getSelectionModel().addListSelectionListener(pluginSelectionListener());
+		}
+		return pluginsTable;
+	}
+
+	private ListSelectionListener pluginSelectionListener() {
+		return new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					updateControls();
+				}
+			}
+
+		};
+	}
+
+	private void updateControls() {
+		boolean selected = getPluginsTable().getSelectedRowCount() > 0;
+		getConfirmAction().setEnabled(selected);
+	}
+
 	private JPanel createContentPanel() {
-
-		pluginsTable = new JTable(new PluginTableModel());
-		pluginsTable.setAutoCreateRowSorter(true);
-
-		searchField = new ApplicationTextField();
-		searchField.addKeyListener(createSearchFieldListener());
-
-		contentPane = new JPanel(new MigLayout("", "[grow]", "[][grow][]"));
-		contentPane.add(searchField, "grow, wrap");
-		contentPane.add(new JScrollPane(pluginsTable), "grow, wrap");
+		JPanel contentPane = new JPanel(new MigLayout("", "[grow]", "[][grow][]"));
+		contentPane.add(getSearchField(), "grow, wrap");
+		contentPane.add(new JScrollPane(getPluginsTable()), "grow, wrap");
 		contentPane.add(new JButton(getConfirmAction()), "ax right");
-
 		return contentPane;
 	}
 
+	private ApplicationTextField getSearchField() {
+		if (searchField == null) {
+			searchField = new ApplicationTextField();
+			searchField.addKeyListener(createSearchFieldListener());
+		}
+		return searchField;
+	}
+
 	private Action getConfirmAction() {
-		if (saveAction == null) {
-			saveAction = new AbstractAction("Confirmar") {
+		if (confirmAction == null) {
+			confirmAction = new AbstractAction("Confirmar") {
 				@Override
 				public void actionPerformed(final ActionEvent e) {
 					choosePlugin();
 				}
 			};
 		}
-		return saveAction;
+		return confirmAction;
 	}
 
 	private void choosePlugin() {
-		final int tableIndex = pluginsTable.getSelectedRow();
-
-		if (tableIndex < 0) {
-			JOptionPane.showMessageDialog(null, "Selecione um Plugin");
-		} else {
-			plugin = ptmodel.getPlugin(tableIndex);
-			this.setVisible(false);
-		}
+		selectedPlugin = ptmodel.getPlugin(getPluginsTable().getSelectedRow());
+		this.setVisible(false);
 	}
 
-	public Plugin getPluginSelected() {
-		return pluginSelected;
+	public Plugin getSelectedPlugin() {
+		return selectedPlugin;
 	}
 
-	public void setPluginSelected(final Plugin pluginSelected) {
-		this.pluginSelected = pluginSelected;
-	}
-
-	public Plugin getPlugin() {
-		return plugin;
-	}
-
-	public void setPlugin(final Plugin plugin) {
-		this.plugin = plugin;
-	}
 }

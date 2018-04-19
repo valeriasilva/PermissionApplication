@@ -2,6 +2,7 @@ package common.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Date;
 
 import client.util.Util;
 
@@ -14,7 +15,7 @@ public class Feature implements Serializable {
 	private Long id;
 	private String name;
 	private String description;
-	private Timestamp creationDate;
+	private Date creationDate;
 	private Plugin plugin;
 
 	public Feature() {
@@ -48,7 +49,7 @@ public class Feature implements Serializable {
 		this.description = description;
 	}
 
-	public Timestamp getCreationDate() {
+	public Date getCreationDate() {
 		return creationDate;
 	}
 

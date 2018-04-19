@@ -1,170 +1,139 @@
 package client.view;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
-import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.TableModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import client.controller.FeatureController;
 import client.controller.PermissionController;
+import client.util.Util;
 import client.view.components.ApplicationTextField;
 import client.view.tablemodels.FeatureTableModel;
 import common.model.Feature;
 import common.model.User;
+import net.miginfocom.swing.MigLayout;
 
 public class FeaturePermissionChooserDialog extends JDialog {
 
-	private final JPanel contentPanel = new JPanel();
-	private ApplicationTextField text_featureSearch;
-	private FeatureTableModel ftmodel;
-	private JTable table_features;
-	private List<Feature> featureList;
+	private static final int MIN_HEIGHT = 300;
+	private static final int MIN_WIDTH = (int) (MIN_HEIGHT * Util.GOLDEN_RATIO);
+	private static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_HEIGHT);
+
+	private ApplicationTextField featureSearchField;
+	private FeatureTableModel featureTableModel;
+	private JTable featuresTable;
 	private final FeatureController featureController;
 	private final PermissionController permissionController;
-	private PermissionApplication mainWindow;
 	private Feature selectedFeature;
-	private User userSelected = new User();
-	private JLabel label_userSelected;
+	private User selectedUser = new User();
+	private JLabel selectedUserLabel;
+	private Action confirmAction;
 
-	/**
-	 * Create the dialog.
-	 */
-	public FeaturePermissionChooserDialog(final User userSeletedParameter, final PermissionApplication principalFrame) {
-
+	public FeaturePermissionChooserDialog(final User selectedUser) {
 		this.featureController = new FeatureController(this);
 		this.permissionController = new PermissionController(this);
+		this.selectedUser = selectedUser;
+		buildGUI();
+	}
 
+	private void buildGUI() {
 		setTitle("Atribuir Nova Permissão");
+		setModal(true);
+		setContentPane(createContentPanel());
+		resetFields();
+		setMinimumSize(MIN_SIZE);
+		setPreferredSize(MIN_SIZE);
+		pack();
+		setLocationRelativeTo(null);
+	}
 
-		userSelected = userSeletedParameter;
-		mainWindow = principalFrame;
+	private void resetFields() {
+		updateControls();
+	}
 
-		setBounds(100, 100, 613, 324);
-		getContentPane().setLayout(new BorderLayout());
-		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		contentPanel.setLayout(null);
-		{
-			final JScrollPane scrollPane = new JScrollPane();
-			scrollPane.setBounds(20, 86, 554, 155);
-			contentPanel.add(scrollPane);
+	private void updateControls() {
+		boolean selected = featuresTable.getSelectedRowCount() > 0;
+		getConfirmAction().setEnabled(selected);
+	}
 
-			table_features = new JTable(getFeatureTableModel());
-			scrollPane.setViewportView(table_features);
-		}
+	private Container createContentPanel() {
+		featuresTable = new JTable(getFeatureTableModel());
+		featuresTable.getSelectionModel().addListSelectionListener(createTableSelectionListener());
+		featureSearchField = new ApplicationTextField();
+		selectedUserLabel = new JLabel("Atribuição de permissão para: " + selectedUser.getFullname());
 
-		text_featureSearch = new ApplicationTextField();
-		text_featureSearch.setColumns(10);
-		text_featureSearch.setBounds(20, 55, 455, 20);
-		contentPanel.add(text_featureSearch);
+		final JButton okButton = new JButton(getConfirmAction());
 
-		label_userSelected = new JLabel();
-		label_userSelected.setBounds(20, 23, 554, 14);
-		label_userSelected.setText("Definir nova permissão para: " + userSeletedParameter.getFullname());
-		contentPanel.add(label_userSelected);
-		{
-			final JPanel buttonPane = new JPanel();
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			getContentPane().add(buttonPane, BorderLayout.SOUTH);
-			{
-				final JButton okButton = new JButton("Salvar");
-				okButton.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(final ActionEvent e) {
-						final int tableIndex = table_features.getSelectedRow();
-						selectedFeature = new Feature();
-
-						if (tableIndex < 0) {
-							JOptionPane.showMessageDialog(null, "Selecione uma Funcionalidade");
-						} else {
-							selectedFeature = ftmodel.getFeature(tableIndex);
-							try {
-								permissionController.save(userSelected.getId(), selectedFeature.getId());
-
-								// Atualiza Tabela de Funcionalidades permitidas da Tela Main
-								ftmodel = new FeatureTableModel(
-										permissionController.listFeaturesPermittedFor(userSelected.getId()));
-								mainWindow.getTable_featuresPermission().setModel(ftmodel);
-							} catch (final ParseException e1) {
-								e1.printStackTrace();
-							}
-							setVisible(false);
-						}
-					}
-				});
-				okButton.setActionCommand("OK");
-				buttonPane.add(okButton);
-				getRootPane().setDefaultButton(okButton);
+		final JButton cancelButton = new JButton("Cancelar");
+		cancelButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				setVisible(false);
 			}
-			{
-				final JButton cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(final ActionEvent e) {
-						dispose();
-					}
-				});
-				cancelButton.setActionCommand("Cancel");
-				buttonPane.add(cancelButton);
+		});
+
+		JPanel contentPanel = new JPanel(new MigLayout("", "[grow]", "[][][grow][]"));
+		contentPanel.add(selectedUserLabel, "grow, wrap");
+		contentPanel.add(featureSearchField, "grow, wrap");
+		contentPanel.add(new JScrollPane(featuresTable), "grow, wrap");
+		contentPanel.add(okButton, "ax right, split 2, sg");
+		contentPanel.add(cancelButton, "ax right, sg");
+
+		return contentPanel;
+	}
+
+	private ListSelectionListener createTableSelectionListener() {
+		return new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					updateControls();
+				}
 			}
+		};
+	}
+
+	private Action getConfirmAction() {
+		if (confirmAction == null) {
+			confirmAction = new AbstractAction("Confirmar") {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+					final int tableIndex = featuresTable.getSelectedRow();
+					selectedFeature = featureTableModel.getFeature(tableIndex);
+					try {
+						permissionController.save(selectedUser.getId(), selectedFeature.getId());
+					} catch (final ParseException e1) {
+						e1.printStackTrace();
+					}
+					setVisible(false);
+				}
+			};
 		}
+		return confirmAction;
 	}
 
 	private FeatureTableModel getFeatureTableModel() {
-		if (ftmodel == null) {
-			ftmodel = new FeatureTableModel(featureController.getAllFeatures());
+		if (featureTableModel == null) {
+			featureTableModel = new FeatureTableModel(featureController.getAllFeatures());
 		}
-		return ftmodel;
+		return featureTableModel;
 	}
 
-	private TableModel getFeatureTableModel(final List<Feature> featureList) {
-		if (ftmodel == null) {
-			ftmodel = new FeatureTableModel(featureList);
-		}
-		return ftmodel;
-	}
-
-	public PermissionApplication getMainWindow() {
-		return mainWindow;
-	}
-
-	public void setMainWindow(final PermissionApplication mainWindow) {
-		this.mainWindow = mainWindow;
-	}
-
-	public Feature getSelectedFeature() {
+	public Feature getCreatedFeature() {
 		return selectedFeature;
 	}
 
-	public void setSelectedFeature(final Feature selectedFeature) {
-		this.selectedFeature = selectedFeature;
-	}
-
-	public User getUserSelected() {
-		return userSelected;
-	}
-
-	public void setUserSelected(final User userSelected) {
-		this.userSelected = userSelected;
-	}
-
-	public JLabel getLabel_userSelected() {
-		return label_userSelected;
-	}
-
-	public void setLabel_userSelected(final JLabel label_userSelected) {
-		this.label_userSelected = label_userSelected;
-	}
 }

@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -41,7 +40,7 @@ public class FeatureDialog extends JDialog {
 	private FeatureTableModel ftmodel;
 	private ApplicationTextField pluginOfFeature;
 	private Feature feature = null;
-	private PluginChooserDialog setPluginWindow;
+	private PluginChooserDialog pluginChooser;
 	private AbstractAction saveAction;
 
 	/**
@@ -49,7 +48,7 @@ public class FeatureDialog extends JDialog {
 	 */
 	public FeatureDialog() {
 		featureController = new FeatureController(this);
-		setPluginWindow = new PluginChooserDialog();
+		pluginChooser = new PluginChooserDialog();
 		buildGUI();
 	}
 
@@ -81,8 +80,8 @@ public class FeatureDialog extends JDialog {
 		btnPlugin.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				setPluginWindow = new PluginChooserDialog();
-				setPluginWindow.setVisible(true);
+				pluginChooser = new PluginChooserDialog();
+				pluginChooser.setVisible(true);
 			}
 		});
 
@@ -167,20 +166,13 @@ public class FeatureDialog extends JDialog {
 		return ftmodel;
 	}
 
-	private FeatureTableModel getFeatureTableModel(final List<Feature> features) {
-		if (ftmodel == null) {
-			ftmodel = new FeatureTableModel(features);
-		}
-		return ftmodel;
-	}
-
 	private void onClickSave() {
 		/* Se a a variável feature for null, trata-se de um insert */
 		if (feature == null) {
-			if (setPluginWindow.getPlugin() == null)
+			if (pluginChooser.getSelectedPlugin() == null)
 				featureController.showInfo("Informe o Plugin ao qual esta Funcionalidade pertence");
 			else {
-				final Long idPlugin = setPluginWindow.getPlugin().getId();
+				final Long idPlugin = pluginChooser.getSelectedPlugin().getId();
 				featureController.save(featureNameField.getText(), featureDescriptionArea.getText(), idPlugin);
 				ftmodel = null;
 				table.setModel(getFeatureTableModel());

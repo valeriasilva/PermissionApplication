@@ -1,12 +1,12 @@
 package client.view.tablemodels;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import common.model.Plugin;
-import oracle.sql.TIMESTAMP;
 
 public class PluginTableModel extends AbstractTableModel {
 
@@ -15,9 +15,8 @@ public class PluginTableModel extends AbstractTableModel {
 	private static final int CREATIONDATE = 2;
 	private static final int[] SEARCHABLE_COLS = new int[] { 0, 1, 2 };
 
-	private List<Plugin> items;
-
 	private String[] columns = new String[] { "Nome", "Descrição", "Data de Criação" };
+	private final List<Plugin> items;
 
 	public PluginTableModel() {
 		items = new ArrayList<>();
@@ -46,7 +45,7 @@ public class PluginTableModel extends AbstractTableModel {
 		case DESCRIPTION:
 			return String.class;
 		case CREATIONDATE:
-			return TIMESTAMP.class;
+			return String.class;
 		default:
 			throw new IndexOutOfBoundsException("columnIndex out of bounds");
 		}
@@ -54,31 +53,30 @@ public class PluginTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(final int rowIndex, final int columnIndex) {
-		final Plugin Plugin = items.get(rowIndex);
-
+		final Plugin plugin = items.get(rowIndex);
 		switch (columnIndex) {
 		case NAME:
-			return Plugin.getName();
+			return plugin.getName();
 		case DESCRIPTION:
-			return Plugin.getDescription();
+			return plugin.getDescription();
 		case CREATIONDATE:
-			return Plugin.getCreationDate().toString();
+			return new SimpleDateFormat("dd/MM/yyyy").format(plugin.getCreationDate());
 		default:
 			throw new IndexOutOfBoundsException("columnIndex out of bounds");
 		}
 	}
 
-	public Plugin getPlugin(final int indiceLinha) {
-		return items.get(indiceLinha);
+	public Plugin getPlugin(final int index) {
+		return items.get(index);
 	}
 
-	public void removePlugin(final int indiceLinha) {
-		items.remove(indiceLinha);
-		fireTableRowsDeleted(indiceLinha, indiceLinha);
+	public void removePlugin(final int index) {
+		items.remove(index);
+		fireTableRowsDeleted(index, index);
 	}
 
-	public void setItems(List<Plugin> listPlugins) {
-		items.addAll(listPlugins);
+	public void setItems(List<Plugin> plugins) {
+		items.addAll(plugins);
 		fireTableDataChanged();
 	}
 
