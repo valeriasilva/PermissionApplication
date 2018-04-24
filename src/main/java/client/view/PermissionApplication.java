@@ -159,6 +159,8 @@ public class PermissionApplication extends JFrame {
 				System.exit(JFrame.EXIT_ON_CLOSE);
 			}
 		});
+		
+		mnArquivo.add(mntmSair);
 	}
 
 	private Component createControlPane() {
@@ -238,15 +240,6 @@ public class PermissionApplication extends JFrame {
 		};
 	}
 
-	private MouseAdapter createMouseListenerForusersTable() {
-		return new MouseAdapter() {
-			@Override
-			public void mouseClicked(final java.awt.event.MouseEvent evt) {
-				featuresPermissionTable.setModel(getFeaturesPermittedForSelectedUser());
-			}
-		};
-	}
-
 	private TableModel getUserTableModel() {
 		if (utmodel == null) {
 			utmodel = new UserTableModel(userController.listUsers());
@@ -322,7 +315,7 @@ public class PermissionApplication extends JFrame {
 		final int tableIndex = usersTable.getSelectedRow();
 		List<Feature> featuresPermitted = new ArrayList<Feature>();
 
-		if (tableIndex <= 0) {
+		if (tableIndex < 0) {
 			ftmodel = new FeatureTableModel();
 		}
 		else {

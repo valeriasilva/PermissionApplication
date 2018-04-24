@@ -14,6 +14,7 @@ public class FeatureTableModel extends AbstractTableModel {
 	private static final int DESCRIPTION = 1;
 	private static final int CREATIONDATE = 2;
 	private static final int PLUGIN = 3;
+	private static final int[] SEARCHABLE_COLS = new int[] { 0, 1, 2, 3 };
 
 	private List<Feature> data;
 
@@ -107,4 +108,7 @@ public class FeatureTableModel extends AbstractTableModel {
 		fireTableDataChanged();
 	}
 
+	public static int[] getSearchableCols() {
+		return SEARCHABLE_COLS;
+	}
 }

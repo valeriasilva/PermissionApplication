@@ -17,11 +17,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import client.controller.FeatureController;
 import client.util.Util;
 import client.view.components.ApplicationTextField;
 import client.view.tablemodels.FeatureTableModel;
+import client.view.tablemodels.PluginTableModel;
 import common.model.Feature;
 import net.miginfocom.swing.MigLayout;
 
@@ -42,6 +46,8 @@ public class FeatureDialog extends JDialog {
 	private Feature feature = null;
 	private PluginChooserDialog pluginChooser;
 	private AbstractAction saveAction;
+	private JButton BtnSaveFeature;
+	private JButton btnExcluir;
 
 	/**
 	 * Create the frame.
@@ -59,14 +65,15 @@ public class FeatureDialog extends JDialog {
 		setMinimumSize(MIN_SIZE);
 		setLocationRelativeTo(null);
 		setModal(true);
+		updateControls();
 	}
 
 	private Container createContentPane() {
 
 		searchFeatureField = new ApplicationTextField();
 
-		table = new JTable(getFeatureTableModel());
-		table.addMouseListener(createMouseListenerForTable());
+		//table = new JTable(getFeatureTableModel());
+		//table.addMouseListener(createMouseListenerForTable());
 
 		featureNameField = new ApplicationTextField();
 
@@ -96,7 +103,7 @@ public class FeatureDialog extends JDialog {
 		JPanel contentPane = new JPanel(new MigLayout("ins 10", "[right][grow][right][grow]", "[][grow][][grow][][]"));
 		contentPane.add(searchFeatureField, "spanx 4, grow, split 2");
 		contentPane.add(newfeatureBtn, "wrap, sg btn1");
-		contentPane.add(new JScrollPane(table), "grow, wrap, spanx");
+		contentPane.add(new JScrollPane(getTable()), "grow, wrap, spanx");
 		contentPane.add(new JLabel("Nome:"));
 		contentPane.add(featureNameField, "grow");
 		contentPane.add(new JLabel("Plugin:"));
@@ -109,10 +116,40 @@ public class FeatureDialog extends JDialog {
 		return contentPane;
 	}
 
-	private Component createControlPanel() {
+	public JTable getTable() {
+		if (table == null) {
+			table = new JTable((getFeatureTableModel()));
+			table.setAutoCreateRowSorter(true);
+			table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			table.getSelectionModel().addListSelectionListener(featureSelectionListener());
+		}
+		return table;
+	}
 
-		final JButton saveFeatureBtn = new JButton(getSaveFeatureAction());
-		final JButton btnExcluir = new JButton(createDeleteAction());
+	private ListSelectionListener featureSelectionListener() {
+		return new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					updateControls();
+				}
+			}
+		};
+	}
+	
+	private void updateControls() {
+		boolean selected = getTable().getSelectedRowCount() > 0;
+		BtnSaveFeature.setEnabled(selected);
+		btnExcluir.setEnabled(selected);
+	}
+
+	public void setTable(JTable table) {
+		this.table = table;
+	}
+
+	private Component createControlPanel() {
+		BtnSaveFeature = new JButton(getSaveFeatureAction());
+		btnExcluir = new JButton(createDeleteAction());
 		final JButton cancelBtn = new JButton("Cancelar");
 		cancelBtn.addActionListener(new ActionListener() {
 			@Override
@@ -123,7 +160,7 @@ public class FeatureDialog extends JDialog {
 
 		JPanel controlPane = new JPanel(new MigLayout("", "", ""));
 		controlPane.add(btnExcluir, "sg btns, ax right");
-		controlPane.add(saveFeatureBtn, "sg btns, ax right");
+		controlPane.add(BtnSaveFeature, "sg btns, ax right");
 		controlPane.add(cancelBtn, "sg btns, ax right");
 
 		return controlPane;
