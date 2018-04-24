@@ -17,7 +17,7 @@ CREATE TABLE feature (
     id             NUMBER NOT NULL,
     name           VARCHAR2(50) NOT NULL,
     description    VARCHAR2(500),
-    creationdate   TIMESTAMP WITH LOCAL TIME ZONE,
+    creationdate   DATE,
     plugin_id      NUMBER NOT NULL
 );
 
@@ -35,7 +35,7 @@ CREATE TABLE plugin (
     id             NUMBER NOT NULL,
     name           VARCHAR2(50) NOT NULL,
     description    VARCHAR2(500),
-    creationdate   TIMESTAMP WITH LOCAL TIME ZONE
+    creationdate   DATE
 );
 
 ALTER TABLE plugin ADD CONSTRAINT plugin_pk PRIMARY KEY ( id );
@@ -108,7 +108,7 @@ END;
 
 
 
--- Relatório do Resumo do Oracle SQL Developer Data Modeler: 
+-- Relatï¿½rio do Resumo do Oracle SQL Developer Data Modeler: 
 -- 
 -- CREATE TABLE                             4
 -- CREATE INDEX                             0
