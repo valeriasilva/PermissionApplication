@@ -101,20 +101,19 @@ public class PluginChooserDialog extends JDialog {
 					updateControls();
 				}
 			}
-
 		};
 	}
 
 	private void updateControls() {
 		boolean selected = getPluginsTable().getSelectedRowCount() > 0;
-		getConfirmAction().setEnabled(selected);
+		geConfirmAction().setEnabled(selected);
 	}
 
 	private JPanel createContentPanel() {
 		JPanel contentPane = new JPanel(new MigLayout("", "[grow]", "[][grow][]"));
 		contentPane.add(getSearchField(), "grow, wrap");
 		contentPane.add(new JScrollPane(getPluginsTable()), "grow, wrap");
-		contentPane.add(new JButton(getConfirmAction()), "ax right");
+		contentPane.add(new JButton(geConfirmAction()), "ax right");
 		return contentPane;
 	}
 
@@ -126,7 +125,7 @@ public class PluginChooserDialog extends JDialog {
 		return searchField;
 	}
 
-	private Action getConfirmAction() {
+	private Action geConfirmAction() {
 		if (confirmAction == null) {
 			confirmAction = new AbstractAction("Confirmar") {
 				@Override
@@ -139,12 +138,16 @@ public class PluginChooserDialog extends JDialog {
 	}
 
 	private void choosePlugin() {
-		selectedPlugin = ptmodel.getPlugin(getPluginsTable().getSelectedRow());
-		this.setVisible(false);
+		if(selectedPlugin == null) {
+			selectedPlugin = new Plugin();
+		}else {
+			selectedPlugin = ptmodel.getPlugin(getPluginsTable().getSelectedRow());
+			this.setVisible(false);
+		}
+
 	}
 
 	public Plugin getSelectedPlugin() {
 		return selectedPlugin;
 	}
-
 }

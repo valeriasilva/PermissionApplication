@@ -83,5 +83,4 @@ public class PluginTableModel extends AbstractTableModel {
 	public static int[] getSearchableColumns() {
 		return SEARCHABLE_COLS;
 	}
-
 }

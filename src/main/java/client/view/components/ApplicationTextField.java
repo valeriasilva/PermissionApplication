@@ -25,5 +25,4 @@ public class ApplicationTextField extends JTextField {
 	private void config() {
 		setMinimumSize(new Dimension(0, new JComboBox<>().getPreferredSize().height));
 	}
-
 }

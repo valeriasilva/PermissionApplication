@@ -39,7 +39,6 @@ public class FeaturePermissionChooserDialog extends JDialog {
 	private final PermissionController permissionController;
 	private Feature selectedFeature;
 	private User selectedUser = new User();
-	private JLabel selectedUserLabel;
 	private Action confirmAction;
 
 	public FeaturePermissionChooserDialog(final User selectedUser) {
@@ -50,7 +49,7 @@ public class FeaturePermissionChooserDialog extends JDialog {
 	}
 
 	private void buildGUI() {
-		setTitle("Atribuir Nova Permissão");
+		setTitle("Atribuir permissão para: " + selectedUser.getFullname());
 		setModal(true);
 		setContentPane(createContentPanel());
 		resetFields();
@@ -73,7 +72,6 @@ public class FeaturePermissionChooserDialog extends JDialog {
 		featuresTable = new JTable(getFeatureTableModel());
 		featuresTable.getSelectionModel().addListSelectionListener(createTableSelectionListener());
 		featureSearchField = new ApplicationTextField();
-		selectedUserLabel = new JLabel("Atribuição de permissão para: " + selectedUser.getFullname());
 
 		final JButton okButton = new JButton(getConfirmAction());
 
@@ -86,7 +84,6 @@ public class FeaturePermissionChooserDialog extends JDialog {
 		});
 
 		JPanel contentPanel = new JPanel(new MigLayout("", "[grow]", "[][][grow][]"));
-		contentPanel.add(selectedUserLabel, "grow, wrap");
 		contentPanel.add(featureSearchField, "grow, wrap");
 		contentPanel.add(new JScrollPane(featuresTable), "grow, wrap");
 		contentPanel.add(okButton, "ax right, split 2, sg");

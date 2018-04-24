@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import common.model.Plugin;
 import common.model.User;
 
 public class UserTableModel extends AbstractTableModel {
@@ -12,13 +13,15 @@ public class UserTableModel extends AbstractTableModel {
 	private static final int FULLNAME = 0;
 	private static final int LOGIN = 1;
 	private static final int STATUS = 2;
-	private static final int CURRENTMANAGEMENT = 3;;
+	private static final int CURRENTMANAGEMENT = 3;
+	private static final int[] SEARCHABLE_COLS = new int[] { 0, 1, 3 };
+
 
 	private String[] columns = new String[] { "Nome", "Login", "Ativo", "Gerência Atual" };
 	private List<User> data;
 
 	public UserTableModel(List<User> users) {
-		data = new ArrayList<>(users);
+		setItems(users);
 	}
 
 	@Override
@@ -73,4 +76,12 @@ public class UserTableModel extends AbstractTableModel {
 		return data.get(indiceLinha);
 	}
 
+	public void setItems(List<User> users) {
+		data = new ArrayList<>(users);
+		fireTableDataChanged();
+	}
+	
+	public static int[] getSearchableColumns() {
+		return SEARCHABLE_COLS;
+	}
 }
