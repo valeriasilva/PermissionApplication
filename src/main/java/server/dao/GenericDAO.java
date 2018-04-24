@@ -36,7 +36,7 @@ public abstract class GenericDAO {
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
-			throw new ServerException("Problema ao executar o INSERT na base de dados: \n"+ e.getStackTrace());
+			throw new ServerException("Problema ao executar o INSERT na base de dados: \n"+ e);
 		}finally {
 			try {
 				pstmt.close();

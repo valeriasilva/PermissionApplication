@@ -15,7 +15,7 @@ public class PluginDAO extends GenericDAO {
 
 	public int savePlugin(final Plugin plugin) throws ServerException {
 		final String insert = "INSERT INTO Plugin (name, description, creationDate) VALUES(?,?,?)";
-		return save(insert, plugin.getName(), plugin.getDescription(), plugin.getCreationDate());
+		return save(insert, plugin.getName(), plugin.getDescription(), new java.sql.Timestamp(plugin.getCreationDate().getTime()));
 	}
 
 	public void updatePlugin(final Plugin plugin) throws ServerException {
@@ -44,7 +44,7 @@ public class PluginDAO extends GenericDAO {
 				plugin.setId(rs.getLong("id"));
 				plugin.setName(rs.getString("name"));
 				plugin.setDescription(rs.getString("description"));
-				plugin.setCreationDate(rs.getTimestamp("creationDate"));
+				plugin.setCreationDate(rs.getDate("creationDate"));
 				plugins.add(plugin);
 			}
 			
@@ -78,7 +78,7 @@ public class PluginDAO extends GenericDAO {
 				plugin.setId(rs.getLong("id"));
 				plugin.setName(rs.getString("name"));
 				plugin.setDescription(rs.getString("description"));
-				plugin.setCreationDate(rs.getTimestamp("creationDate"));
+				plugin.setCreationDate(rs.getDate("creationDate"));
 			}
 		} catch (SQLException e) {
 			throw new ServerException("Não foi possível buscar plugins pelo ID"+ e.getStackTrace());

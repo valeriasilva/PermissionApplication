@@ -16,7 +16,7 @@ public class FeatureDAO extends GenericDAO {
 
 	public int saveFeature(final Feature feature) throws ServerException {
 		final String insert = "INSERT INTO Feature (name, description, creationDate, plugin_id) VALUES(?,?,?,?)";
-		return save(insert, feature.getName(), feature.getDescription(), feature.getCreationDate(),
+		return save(insert, feature.getName(), feature.getDescription(), new java.sql.Timestamp(feature.getCreationDate().getTime()),
 				feature.getPlugin().getId().intValue());
 	}
 

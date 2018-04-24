@@ -1,7 +1,6 @@
 package common.model;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Date;
 
 import client.util.Util;
@@ -53,7 +52,7 @@ public class Feature implements Serializable {
 		return creationDate;
 	}
 
-	public void setCreationDate(final Timestamp creationDate) {
+	public void setCreationDate(final Date creationDate) {
 		this.creationDate = creationDate;
 	}
 

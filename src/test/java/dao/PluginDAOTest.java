@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import client.util.Util;
 import common.model.Feature;
 import common.model.Plugin;
 import server.dao.FeatureDAO;
@@ -46,7 +47,6 @@ public class PluginDAOTest {
 
 		plugin.setName("Plugin test");
 		plugin.setDescription("Description Plugin Teste");
-		plugin.setCreationDate((getCurrentDateFormated()));
 
 		// Retorna o id gerado ao inserir o plugin no banco
 		try {
@@ -73,9 +73,5 @@ public class PluginDAOTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	private Timestamp getCurrentDateFormated() {
-		return new Timestamp(System.currentTimeMillis());
 	}
 }

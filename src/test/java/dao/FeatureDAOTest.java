@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import client.util.Util;
 import common.model.Feature;
 import common.model.Plugin;
 import server.dao.DBAccess;
@@ -21,6 +22,7 @@ public class FeatureDAOTest {
 	@BeforeClass
 	public static void testGettingConnection() {
 		try {
+			System.out.println("Testando conexão com a base de dados ...");
 			Assert.assertNotNull(DBAccess.createDBConnection());
 		} catch (ServerException e) {
 			// TODO Auto-generated catch block
@@ -30,6 +32,7 @@ public class FeatureDAOTest {
 
 	@Before
 	public void createsTestScenario() {
+		System.out.println("Inserindo Plugin...");
 		final Plugin plugin = new Plugin();
 
 		plugin.setName("Plugin test");
@@ -100,7 +103,7 @@ public class FeatureDAOTest {
 		feature.setName("Feature Teste");
 		feature.setDescription("Description Feature Teste");
 		feature.getPlugin().setId((long) pluginIdGenarated);
-		feature.setCreationDate(getCurrentDateFormated());
+		feature.setCreationDate(Util.getCurrentDateFormated());
 
 		// Retorna o id gerado ao inserir a feature no banco
 		try {
@@ -109,9 +112,5 @@ public class FeatureDAOTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	private Timestamp getCurrentDateFormated() {
-		return new Timestamp(System.currentTimeMillis());
 	}
 }
