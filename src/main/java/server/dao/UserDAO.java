@@ -73,6 +73,34 @@ public class UserDAO extends GenericDAO {
 				user.getLogin());
 	}
 
+	public User getUserById(Long id) throws ServerException {
+
+		ResultSet rs = null;
+		PreparedStatement stmt = null;
+
+		try {
+			stmt = getConnection().prepareStatement(UserSQL.getUserByIdSql());
+			stmt.setLong(1, id);
+			rs = stmt.executeQuery();
+			if (rs.next()) {
+				return buildUser(rs);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ServerException("Não foi possível buscar usuários" + e.getMessage());
+		} finally {
+			try {
+				rs.close();
+				stmt.close();
+				getConnection().close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+
+	}
+
 	private User buildUser(final ResultSet rs) throws SQLException {
 		final User user = new User();
 		user.setId(rs.getLong("id"));

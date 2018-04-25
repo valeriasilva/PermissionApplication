@@ -23,7 +23,7 @@ public class UserController extends Controller {
 		List<User> listOfUsers = new ArrayList<User>();
 
 		try {
-			listOfUsers = ServiceLocator.getServer().getUsers();
+			listOfUsers = ServiceLocator.getService().getUsers();
 			return listOfUsers;
 		} catch (RemoteException e) {
 			showError(parentComponent, "Problemas ao conectar com o servidor." + e.getMessage());
@@ -39,7 +39,7 @@ public class UserController extends Controller {
 		List<User> listOfUsers = new ArrayList<User>();
 
 		try {
-			listOfUsers = ServiceLocator.getServer().getUsersByName(name);
+			listOfUsers = ServiceLocator.getService().getUsersByName(name);
 			return listOfUsers;
 		} catch (final ServiceException e) {
 			showError(parentComponent, "Problemas ao listar usuários pelo nome" + e.getMessage());

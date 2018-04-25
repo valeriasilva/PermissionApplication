@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import common.model.Feature;
+import common.model.User;
 
 public class PermissionDAO extends GenericDAO {
 
@@ -24,8 +25,8 @@ public class PermissionDAO extends GenericDAO {
 	}
 
 	/**
-	 * Método para verificar se determinado usuário já
-	 * tem permissão para usar determinada Feature.
+	 * Método para verificar se determinado usuário já tem permissão para usar
+	 * determinada Feature.
 	 * 
 	 * @return false
 	 */
@@ -41,12 +42,12 @@ public class PermissionDAO extends GenericDAO {
 				return true;
 			}
 		} catch (SQLException e) {
-			throw new ServerException("Não foi possível verificar se há permissão "+ e.getMessage());
+			throw new ServerException("Não foi possível verificar se há permissão " + e.getMessage());
 		}
 		return false;
 	}
 
-	public List<Feature> findFeaturesNotPermittedFor(final Long UserId) throws ServerException{
+	public List<Feature> findFeaturesNotPermittedFor(final Long UserId) throws ServerException {
 		final String select = "SELECT * FROM Permission_ WHERE UserId != ?";
 		final List<Feature> features = new ArrayList<Feature>();
 		Feature feature = null;
@@ -63,21 +64,21 @@ public class PermissionDAO extends GenericDAO {
 				}
 			}
 		} catch (SQLException e1) {
-			throw new ServerException("Não foi possível buscar funcionalidades não permitidas "+ e1.getMessage());
-		}finally {
+			throw new ServerException("Não foi possível buscar funcionalidades não permitidas " + e1.getMessage());
+		} finally {
 			try {
 				rs.close();
 				stmt.close();
 				getConnection().close();
 			} catch (SQLException e) {
-				//Log
+				// Log
 				e.getStackTrace();
 			}
 		}
 		return features;
 	}
 
-	public List<Feature> findFeaturesPermittedForUser(final Long UserId) throws ServerException {
+	public List<Feature> findFeaturesPermittedForUser(final User user) throws ServerException {
 		final String select = "SELECT * FROM Permission_ WHERE UserId = ?";
 		final List<Feature> features = new ArrayList<Feature>();
 		Feature feature = null;
@@ -85,7 +86,7 @@ public class PermissionDAO extends GenericDAO {
 		ResultSet rs = null;
 		try {
 			stmt = getConnection().prepareStatement(select);
-			stmt.setLong(1, UserId);
+			stmt.setLong(1, user.getId());
 			rs = stmt.executeQuery();
 			while (rs.next()) {
 				if (rs.getLong("FeatureId") > 0) {
@@ -94,16 +95,16 @@ public class PermissionDAO extends GenericDAO {
 				}
 			}
 		} catch (SQLException e) {
-			throw new ServerException("Não foi possível buscar funcionalidades permitidas "+ e.getMessage());
-		}finally {
+			throw new ServerException("Não foi possível buscar funcionalidades permitidas " + e.getMessage());
+		} finally {
 			try {
 				rs.close();
 				stmt.close();
 				getConnection().close();
 			} catch (SQLException e) {
-				//Log
+				// Log
 				e.getStackTrace();
-			}	
+			}
 		}
 		return features;
 	}
@@ -125,14 +126,14 @@ public class PermissionDAO extends GenericDAO {
 				}
 			}
 		} catch (SQLException e) {
-			throw new ServerException("Não foi possível buscar funcionalidades não permitidas "+ e.getMessage());
-		}finally{
+			throw new ServerException("Não foi possível buscar funcionalidades não permitidas " + e.getMessage());
+		} finally {
 			try {
 				rs.close();
 				stmt.close();
 				getConnection().close();
 			} catch (SQLException e) {
-				//Log
+				// Log
 				e.getStackTrace();
 			}
 		}

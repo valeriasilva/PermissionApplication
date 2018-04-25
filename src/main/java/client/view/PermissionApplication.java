@@ -9,15 +9,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.util.ArrayList;
+import java.rmi.RemoteException;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -27,21 +25,19 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import client.controller.ApplicationController;
-import client.controller.Controller;
 import client.controller.PermissionController;
 import client.controller.UserController;
 import client.util.Util;
 import client.view.components.ApplicationTextField;
 import client.view.components.TextRowFilter;
 import client.view.tablemodels.FeatureTableModel;
-import client.view.tablemodels.PluginTableModel;
 import client.view.tablemodels.UserTableModel;
 import common.model.Feature;
 import common.model.User;
+import common.service.ServiceException;
 import net.miginfocom.swing.MigLayout;
 
 public class PermissionApplication extends JFrame {
@@ -50,16 +46,13 @@ public class PermissionApplication extends JFrame {
 	private static final int MIN_WIDTH = (int) (MIN_HEIGHT * Util.GOLDEN_RATIO);
 	private static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_HEIGHT);
 
-	private final Controller applicationController;
+	private final ApplicationController applicationController;
 	private final UserController userController;
 	private final PermissionController permissionController;
 
 	private JTable usersTable;
-	private UserTableModel utmodel;
 	private ApplicationTextField searchUserField;
 	private JTable featuresPermissionTable;
-	private FeatureTableModel ftmodel;
-	private User selectedUser;
 	private JButton btnIncluir;
 	private JButton btnExcluirPermission;
 
@@ -82,7 +75,6 @@ public class PermissionApplication extends JFrame {
 	}
 
 	private void resetFields() {
-		this.selectedUser = null;
 		updateUserControls();
 		updateFeatureControls();
 	}
@@ -108,49 +100,39 @@ public class PermissionApplication extends JFrame {
 	}
 
 	private void loadData() {
-		UserTableModel model = (UserTableModel) getUsersTable().getModel();
-		model.setItems(userController.listUsers());
+		getUserTableModel().setItems(userController.listUsers());
 	}
 
 	private Container createContentPane() {
+
 		createMenus();
 
 		JPanel contentPane = new JPanel(new MigLayout("ins 10", "[][grow][right]", "[][grow][grow][]"));
-
 		contentPane.add(getSearchUserField(), "spanx, grow");
 		contentPane.add(new JScrollPane(getUsersTable()), "spanx, grow");
 		contentPane.add(new JScrollPane(getFeaturesPermissionTable()), "spanx, grow");
-		contentPane.add(createControlPane(),"spanx, ax right");
+		contentPane.add(createControlPane(), "spanx, ax right");
 
 		return contentPane;
 	}
 
 	private void createMenus() {
-		final JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
 
-		final JMenu mnArquivo = new JMenu("Arquivo");
-		menuBar.add(mnArquivo);
-
-		final JMenuItem mntmPlugins = new JMenuItem("Plugins");
-		mntmPlugins.addActionListener(new ActionListener() {
+		final JMenuItem pluginsMenuItem = new JMenuItem("Plugins");
+		pluginsMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final PluginDialog pluginWindow = new PluginDialog();
-				pluginWindow.setVisible(true);
+				new PluginDialog().setVisible(true);
 			}
 		});
-		mnArquivo.add(mntmPlugins);
 
 		final JMenuItem mntmFuncionalidades = new JMenuItem("Funcionalidades");
 		mntmFuncionalidades.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final FeatureDialog featureWindow = new FeatureDialog();
-				featureWindow.setVisible(true);
+				new FeatureDialog().setVisible(true);
 			}
 		});
-		mnArquivo.add(mntmFuncionalidades);
 
 		final JMenuItem mntmSair = new JMenuItem("Sair");
 		mntmSair.addActionListener(new ActionListener() {
@@ -159,18 +141,40 @@ public class PermissionApplication extends JFrame {
 				System.exit(JFrame.EXIT_ON_CLOSE);
 			}
 		});
-		
-		mnArquivo.add(mntmSair);
+
+		final JMenuItem reportMenuItem = new JMenuItem("Emitir relatório");
+		reportMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				try {
+					applicationController.generateReport();
+				} catch (RemoteException | ServiceException e) {
+					applicationController.showError(null, "Falha na operação de criação de relatório");
+				}
+			}
+		});
+
+		final JMenu fileMenu = new JMenu("Arquivo");
+		fileMenu.add(pluginsMenuItem);
+		fileMenu.add(mntmFuncionalidades);
+		fileMenu.add(reportMenuItem);
+		fileMenu.add(mntmSair);
+
+		final JMenuBar menuBar = new JMenuBar();
+		menuBar.add(fileMenu);
+		setJMenuBar(menuBar);
+
 	}
 
 	private Component createControlPane() {
+
 		final JButton btnClose = new JButton(createActionClose());
 		btnIncluir = new JButton(createActionIncludePermission());
 		btnExcluirPermission = new JButton(createActionRemovePermission());
 
 		JPanel controlPane = new JPanel(new MigLayout("", "[right]", ""));
 		controlPane.add(btnIncluir, "sg btns, ax right");
-		controlPane.add(btnExcluirPermission, "sg btns, ax right");		
+		controlPane.add(btnExcluirPermission, "sg btns, ax right");
 		controlPane.add(btnClose, "sg btns, ax right");
 
 		return controlPane;
@@ -184,7 +188,6 @@ public class PermissionApplication extends JFrame {
 		return searchUserField;
 	}
 
-
 	private KeyListener createSearchUserFieldListener() {
 		return new KeyAdapter() {
 			@Override
@@ -195,7 +198,7 @@ public class PermissionApplication extends JFrame {
 					((TableRowSorter) getUsersTable().getRowSorter()).setRowFilter(null);
 				} else {
 					((TableRowSorter) getUsersTable().getRowSorter())
-					.setRowFilter(new TextRowFilter(text, UserTableModel.getSearchableColumns()));
+							.setRowFilter(new TextRowFilter(text, UserTableModel.getSearchableColumns()));
 				}
 			}
 		};
@@ -230,43 +233,33 @@ public class PermissionApplication extends JFrame {
 					applicationController.showInfo(PermissionApplication.this,
 							"Selecione a funcionalidade a qual deseja retirar permissão");
 				} else {
-					final Long featureId = ftmodel.getFeature(tableFeaturesIndex).getId();
-					final Long userId = utmodel.getUser(tableUsersIndex).getId();
+					final Long featureId = getFeatureTableModel().getFeature(tableFeaturesIndex).getId();
+					final Long userId = getUserTableModel().getUser(tableUsersIndex).getId();
 					permissionController.delete(featureId, userId);
-					ftmodel.removeFeature(tableFeaturesIndex);
+					getFeatureTableModel().removeFeature(tableFeaturesIndex);
 					applicationController.showInfo(PermissionApplication.this, "Permissão removida com sucesso");
 				}
 			}
 		};
 	}
 
-	private TableModel getUserTableModel() {
-		if (utmodel == null) {
-			utmodel = new UserTableModel(userController.listUsers());
-		}
-		return utmodel;
+	private UserTableModel getUserTableModel() {
+		return (UserTableModel) getUsersTable().getModel();
 	}
 
-	public void openDialogPermission() {
-		final int tableIndex = usersTable.getSelectedRow();
-
-		if (tableIndex < 0) {
-			applicationController.showInfo(this, "Selecione o usuário ao qual pretente atribuir nova permissão");
-		} else {
-			selectedUser = utmodel.getUser(tableIndex);
-			final FeaturePermissionChooserDialog permissionInsertDialog = new FeaturePermissionChooserDialog(
-					selectedUser);
-			permissionInsertDialog.setVisible(true);
-			Feature feature = permissionInsertDialog.getCreatedFeature();
-			if (feature != null) {
-				ftmodel.addFeature(feature);
-			}
+	private void openDialogPermission() {
+		final FeaturePermissionChooserDialog permissionInsertDialog = new FeaturePermissionChooserDialog(
+				getUserTableModel().getUser(getUsersTable().getSelectedRow()));
+		permissionInsertDialog.setVisible(true);
+		Feature feature = permissionInsertDialog.getCreatedFeature();
+		if (feature != null) {
+			getFeatureTableModel().addFeature(feature);
 		}
 	}
 
-	public JTable getUsersTable() {
+	private JTable getUsersTable() {
 		if (usersTable == null) {
-			usersTable = new JTable(getUserTableModel());
+			usersTable = new JTable(new UserTableModel(userController.listUsers()));
 			usersTable.setAutoCreateRowSorter(true);
 			usersTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			usersTable.getSelectionModel().addListSelectionListener(userSelectionListener());
@@ -274,7 +267,11 @@ public class PermissionApplication extends JFrame {
 		return usersTable;
 	}
 
-	public JTable getFeaturesPermissionTable() {
+	private FeatureTableModel getFeatureTableModel() {
+		return (FeatureTableModel) getFeaturesPermissionTable().getModel();
+	}
+
+	private JTable getFeaturesPermissionTable() {
 		if (featuresPermissionTable == null) {
 			featuresPermissionTable = new JTable(new FeatureTableModel());
 			featuresPermissionTable.setAutoCreateRowSorter(true);
@@ -300,30 +297,22 @@ public class PermissionApplication extends JFrame {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
-					featuresPermissionTable.setModel(getFeaturesPermittedForSelectedUser());
+					updateFeaturesTable();
 					updateUserControls();
 				}
 			}
 		};
 	}
 
-	public void setUsersTable(JTable usersTable) {
-		this.usersTable = usersTable;
-	}
+	private void updateFeaturesTable() {
 
-	private TableModel getFeaturesPermittedForSelectedUser() {
-		final int tableIndex = usersTable.getSelectedRow();
-		List<Feature> featuresPermitted = new ArrayList<Feature>();
+		getFeatureTableModel().clear();
+		if (getFeaturesPermissionTable().getSelectedRowCount() < 1) {
+			return;
+		}
 
-		if (tableIndex < 0) {
-			ftmodel = new FeatureTableModel();
-		}
-		else {
-			final User userSelected = utmodel.getUser(tableIndex);
-			featuresPermitted = permissionController.listFeaturesPermittedFor(userSelected.getId());
-			ftmodel = new FeatureTableModel(featuresPermitted);
-			return ftmodel;
-		}
-		return ftmodel;
+		final User selectedUser = getUserTableModel().getUser(getUsersTable().getSelectedRow());
+		List<Feature> permissions = permissionController.getFeaturesByUser(selectedUser);
+		getFeatureTableModel().addFeatures(permissions);
 	}
 }

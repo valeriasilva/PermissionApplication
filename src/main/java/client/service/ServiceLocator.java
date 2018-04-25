@@ -5,18 +5,18 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import common.service.ServerInterface;
+import common.service.PermissionServiceInterface;
 
 public class ServiceLocator {
 
-	private static ServerInterface server;
+	private static PermissionServiceInterface server;
 
-	public static ServerInterface getServer() throws RemoteException{
+	public static PermissionServiceInterface getService() throws RemoteException{
 		if (ServiceLocator.server == null) {
 			Registry registry;
 			try {
-				registry = LocateRegistry.getRegistry("localhost", ServerInterface.RMI_PORT);
-				ServiceLocator.server = (ServerInterface) registry.lookup(ServerInterface.REFERENCE_NAME);
+				registry = LocateRegistry.getRegistry("localhost", PermissionServiceInterface.RMI_PORT);
+				ServiceLocator.server = (PermissionServiceInterface) registry.lookup(PermissionServiceInterface.REFERENCE_NAME);
 
 			} catch (NotBoundException e) {
 				// TODO Auto-generated catch block

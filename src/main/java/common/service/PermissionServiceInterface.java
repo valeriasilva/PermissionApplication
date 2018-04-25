@@ -8,7 +8,7 @@ import common.model.Feature;
 import common.model.Plugin;
 import common.model.User;
 
-public interface ServerInterface extends Remote {
+public interface PermissionServiceInterface extends Remote {
 
 	/** nome para referenciar remotamente o servidor */
 	String REFERENCE_NAME = "Server";
@@ -61,7 +61,7 @@ public interface ServerInterface extends Remote {
 	 */
 	List<Feature> findFeatureUserHasNoPermission(Long userId) throws ServiceException, RemoteException;
 
-	List<Feature> findFeaturesPermittedFor(Long userId) throws ServiceException, RemoteException;
+	List<Feature> getPermissionsByUser(User user) throws ServiceException, RemoteException;
 
 	List<Feature> findFeatureNotPermittedByName(String name, Long userId) throws ServiceException, RemoteException;
 
@@ -70,4 +70,17 @@ public interface ServerInterface extends Remote {
 	boolean verifyExistingPermission(Long userId, Long featureId) throws ServiceException, RemoteException;
 
 	void savePermission(Long userId, Long featureId) throws ServiceException, RemoteException;
+
+	/**
+	 * Método que simula a geração de um relatório que demanda muito tempo para
+	 * processamento.
+	 * 
+	 * @throws ServiceException
+	 *             Exceção que pode ser levantada pelo servidor em caso de problemas
+	 *             na execução da tarefa.
+	 * @throws RemoteException
+	 *             Exceção ocorrida por causa de algum problema de comunicação ou
+	 *             situação não tratada adequadamente.
+	 */
+	void generateReport() throws ServiceException, RemoteException;
 }

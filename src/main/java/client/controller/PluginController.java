@@ -23,7 +23,7 @@ public class PluginController extends Controller {
 		plugin.setName(name);
 		plugin.setDescription(description);
 		try {
-			ServiceLocator.getServer().savePlugin(plugin);
+			ServiceLocator.getService().savePlugin(plugin);
 		} catch (final ServiceException e) {
 			showError(null, "Problemas na tentativa de salvar plugin. \n" + e.getMessage());
 		} catch (RemoteException e) {
@@ -39,7 +39,7 @@ public class PluginController extends Controller {
 		plugin.setDescription(description);
 
 		try {
-			ServiceLocator.getServer().updatePlugin(plugin);
+			ServiceLocator.getService().updatePlugin(plugin);
 		} catch (final ServiceException e) {
 			showError(null, "Problemas na tentativa de atualizar plugin. \n" + e.getMessage());
 		} catch (RemoteException e) {
@@ -49,7 +49,7 @@ public class PluginController extends Controller {
 
 	public List<Plugin> listPlugins() {
 		try {
-			return ServiceLocator.getServer().findPlugins();
+			return ServiceLocator.getService().findPlugins();
 		} catch (final ServiceException e1) {
 			showError(null, "Problemas na tentativa de listar plugins. \n" + e1.getMessage());
 		} catch (RemoteException e) {
@@ -60,7 +60,7 @@ public class PluginController extends Controller {
 
 	public void delete(final long id) {
 		try {
-			ServiceLocator.getServer().deletePlugin(id);
+			ServiceLocator.getService().deletePlugin(id);
 		} catch (final ServiceException e) {
 			showError(null, "Problemas na tentativa de excluir plugin. \n" + e.getMessage());
 		} catch (RemoteException e) {
