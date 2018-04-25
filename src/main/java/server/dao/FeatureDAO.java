@@ -21,8 +21,8 @@ public class FeatureDAO extends GenericDAO {
 	}
 
 	public void updateFeature(final Feature feature) throws ServerException {
-		final String update = "UPDATE Feature " + "SET name = ?, description = ? " + "WHERE id = ?";
-		update(update, feature.getId(), feature.getName(), feature.getDescription());
+		final String update = "UPDATE Feature " + "SET name = ?, description = ?, plugin_id = ? " + "WHERE id = ?";
+		update(update, feature.getId(), feature.getName(), feature.getDescription(), feature.getPlugin().getId());
 	}
 
 	public void deleteFeature(final long id) throws ServerException {

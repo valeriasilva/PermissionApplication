@@ -77,7 +77,7 @@ public class PluginChooserDialog extends JDialog {
 					((TableRowSorter) getPluginsTable().getRowSorter()).setRowFilter(null);
 				} else {
 					((TableRowSorter) getPluginsTable().getRowSorter())
-							.setRowFilter(new TextRowFilter(text, PluginTableModel.getSearchableColumns()));
+					.setRowFilter(new TextRowFilter(text, PluginTableModel.getSearchableColumns()));
 				}
 			}
 		};
@@ -138,14 +138,13 @@ public class PluginChooserDialog extends JDialog {
 	}
 
 	private void choosePlugin() {
-		if(selectedPlugin == null) {
+		if(selectedPlugin == null)
 			selectedPlugin = new Plugin();
-		}else {
-			selectedPlugin = ptmodel.getPlugin(getPluginsTable().getSelectedRow());
-			this.setVisible(false);
-		}
-
+		
+		selectedPlugin = ((PluginTableModel) pluginsTable.getModel()).getPlugin(getPluginsTable().getSelectedRow());
+		this.setVisible(false);
 	}
+
 
 	public Plugin getSelectedPlugin() {
 		return selectedPlugin;

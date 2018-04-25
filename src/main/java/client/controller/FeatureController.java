@@ -7,6 +7,7 @@ import java.util.List;
 
 import client.service.ServiceLocator;
 import common.model.Feature;
+import common.model.Plugin;
 import common.service.ServiceException;
 
 public class FeatureController extends Controller {
@@ -18,12 +19,12 @@ public class FeatureController extends Controller {
 		this.parentComponent = parentComponent;
 	}
 
-	public void save(final String name, final String description, final Long idPlugin) {
+	public void save(final String name, final String description, Plugin plugin) {
 
 		final Feature feature = new Feature();
 		feature.setName(name);
 		feature.setDescription(description);
-		feature.getPlugin().setId(idPlugin);
+		feature.getPlugin().setId(plugin.getId());
 
 		try {
 			ServiceLocator.getService().saveFeature(feature);
@@ -34,13 +35,7 @@ public class FeatureController extends Controller {
 		}
 	}
 
-	public void update(final long id, final String name, final String description) {
-
-		final Feature feature = new Feature();
-		feature.setId(id);
-		feature.setName(name);
-		feature.setDescription(description);
-
+	public void update(Feature feature) {
 		try {
 			ServiceLocator.getService().updateFeature(feature);
 		} catch (final ServiceException e) {

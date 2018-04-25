@@ -90,7 +90,6 @@ public class PermissionApplication extends JFrame {
 	}
 
 	private void buildGUI() {
-
 		setTitle("Gerenciador de Permissões de Funcionalidades de Plugins");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setContentPane(createContentPane());
@@ -104,7 +103,6 @@ public class PermissionApplication extends JFrame {
 	}
 
 	private Container createContentPane() {
-
 		createMenus();
 
 		JPanel contentPane = new JPanel(new MigLayout("ins 10", "[][grow][right]", "[][grow][grow][]"));
@@ -117,7 +115,6 @@ public class PermissionApplication extends JFrame {
 	}
 
 	private void createMenus() {
-
 		final JMenuItem pluginsMenuItem = new JMenuItem("Plugins");
 		pluginsMenuItem.addActionListener(new ActionListener() {
 			@Override
@@ -167,7 +164,6 @@ public class PermissionApplication extends JFrame {
 	}
 
 	private Component createControlPane() {
-
 		final JButton btnClose = new JButton(createActionClose());
 		btnIncluir = new JButton(createActionIncludePermission());
 		btnExcluirPermission = new JButton(createActionRemovePermission());
@@ -307,7 +303,7 @@ public class PermissionApplication extends JFrame {
 	private void updateFeaturesTable() {
 
 		getFeatureTableModel().clear();
-		if (getFeaturesPermissionTable().getSelectedRowCount() < 1) {
+		if (getUsersTable().getSelectedRowCount() < 1) {
 			return;
 		}
 

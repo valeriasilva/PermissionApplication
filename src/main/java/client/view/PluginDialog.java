@@ -103,7 +103,9 @@ public class PluginDialog extends JDialog {
 		contentPane = new JPanel(new MigLayout("ins 10", "[grow][]", "[][grow]15[]"));
 		contentPane.add(pluginSearchField, "grow");
 		contentPane.add(new JButton(createNewPluginAction()), "ax right, wrap");
+		
 		contentPane.add(new JScrollPane(pluginsTable), "spanx, grow, wrap");
+		
 		contentPane.add(getPluginDetailsPane(), "grow, spanx, wrap, hidemode 3");
 		contentPane.add(createControlPanel(), "spanx, ax right");
 

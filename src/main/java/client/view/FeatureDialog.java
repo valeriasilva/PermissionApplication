@@ -12,6 +12,7 @@ import java.awt.event.MouseAdapter;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -34,6 +35,7 @@ import client.view.tablemodels.PluginTableModel;
 import common.model.Feature;
 import net.miginfocom.swing.MigLayout;
 
+
 public class FeatureDialog extends JDialog {
 
 	private static final int MIN_HEIGHT = 500;
@@ -53,6 +55,7 @@ public class FeatureDialog extends JDialog {
 	private AbstractAction saveAction;
 	private JButton BtnSaveFeature;
 	private JButton btnExcluir;
+	private JPanel featureDetailsPane;
 
 	/**
 	 * Create the frame.
@@ -70,59 +73,28 @@ public class FeatureDialog extends JDialog {
 		setMinimumSize(MIN_SIZE);
 		setLocationRelativeTo(null);
 		setModal(true);
-		updateControls();
+		updateControls(Boolean.FALSE);
 	}
 
 	private Container createContentPane() {
-		featureNameField = new ApplicationTextField();
-
-		featureDescriptionArea = new JTextArea();
-		featureDescriptionArea.setLineWrap(true);
-
-		pluginOfFeature = new ApplicationTextField("");
-		pluginOfFeature.setEditable(false);
-
-		final JButton btnPlugin = new JButton("...");
-		btnPlugin.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				pluginChooser = new PluginChooserDialog();
-				pluginChooser.setVisible(true);
-			}
-		});
-
-		final JButton newfeatureBtn = new JButton("Novo");
-		newfeatureBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				newFeature();
-			}
-		});
-
-		JPanel contentPane = new JPanel(new MigLayout("ins 10", "[right][grow][right][grow]", "[][grow][][grow][][]"));
+		JPanel contentPane = new JPanel(new MigLayout("ins 10", "[grow][]", "[][grow]15[]"));
 		contentPane.add(getSearchFeatureField(), "spanx 4, grow, split 2");
-		contentPane.add(newfeatureBtn, "wrap, sg btn1");
+		contentPane.add(new JButton(getNewFeature()), "wrap, sg btn1");
+
 		contentPane.add(new JScrollPane(getTable()), "grow, wrap, spanx");
-		contentPane.add(new JLabel("Nome:"));
-		contentPane.add(featureNameField, "grow");
-		contentPane.add(new JLabel("Plugin:"));
-		contentPane.add(pluginOfFeature, "grow, split 2");
-		contentPane.add(btnPlugin, "wrap");
-		contentPane.add(new JLabel("Descrição:"), "ay top");
-		contentPane.add(new JScrollPane(featureDescriptionArea), "h 60:60:60, spanx, grow, wrap");
+
+		contentPane.add(getFeatureDetailsPane(), "grow, spanx, wrap, hidemode 3");
+
 		contentPane.add(createControlPanel(), "spanx, ax right");
 
 		return contentPane;
 	}
 
-	
-	
 	public ApplicationTextField getSearchFeatureField() {
 		if (searchFeatureField == null) {
 			searchFeatureField = new ApplicationTextField();
 			searchFeatureField.addKeyListener(createSearchFeatureListener());
 		}
-		
 		return searchFeatureField;
 	}
 
@@ -136,7 +108,7 @@ public class FeatureDialog extends JDialog {
 					((TableRowSorter) getTable().getRowSorter()).setRowFilter(null);
 				} else {
 					((TableRowSorter) getTable().getRowSorter())
-							.setRowFilter(new TextRowFilter(text, FeatureTableModel.getSearchableColumns()));
+					.setRowFilter(new TextRowFilter(text, FeatureTableModel.getSearchableColumns()));
 				}
 			}
 		};
@@ -161,20 +133,23 @@ public class FeatureDialog extends JDialog {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
-					updateControls();
+					boolean selected = getTable().getSelectedRowCount() > 0;
+					if(selected) {
+						updateControls(selected);
+						fillFields();
+					}else {
+						updateControls(selected);
+						clearFields();
+					}
 				}
 			}
 		};
 	}
-	
-	private void updateControls() {
-		boolean selected = getTable().getSelectedRowCount() > 0;
-		BtnSaveFeature.setEnabled(selected);
-		btnExcluir.setEnabled(selected);
-	}
 
-	public void setTable(JTable table) {
-		this.table = table;
+	private void updateControls(boolean state) {
+		BtnSaveFeature.setEnabled(state);
+		btnExcluir.setEnabled(state);
+		getFeatureDetailsPane().setVisible(state);
 	}
 
 	private Component createControlPanel() {
@@ -205,15 +180,6 @@ public class FeatureDialog extends JDialog {
 		};
 	}
 
-	private MouseAdapter createMouseListenerForTable() {
-		return new MouseAdapter() {
-			@Override
-			public void mouseClicked(final java.awt.event.MouseEvent evt) {
-				fillFields();
-			}
-		};
-	}
-
 	private Action getSaveFeatureAction() {
 		if (saveAction == null) {
 			saveAction = new AbstractAction("Salvar") {
@@ -226,38 +192,75 @@ public class FeatureDialog extends JDialog {
 		return saveAction;
 	}
 
-	private FeatureTableModel getFeatureTableModel() {
-		if (ftmodel == null) {
-			ftmodel = new FeatureTableModel(featureController.getAllFeatures());
+	private void fillFields() {
+		final int tableIndex = table.getSelectedRow();
+		if (tableIndex >= 0) {
+			feature = ftmodel.getFeature(tableIndex);
+			featureNameField.setText(feature.getName());
+			featureDescriptionArea.setText(feature.getDescription());
+			pluginOfFeature.setText(feature.getPlugin().getName());
 		}
-		return ftmodel;
 	}
 
-	private void onClickSave() {
-		/* Se a a variável feature for null, trata-se de um insert */
-		if (feature == null) {
-			if (pluginChooser.getSelectedPlugin() == null)
-				featureController.showInfo("Informe o Plugin ao qual esta Funcionalidade pertence");
-			else {
-				final Long idPlugin = pluginChooser.getSelectedPlugin().getId();
-				featureController.save(featureNameField.getText(), featureDescriptionArea.getText(), idPlugin);
-				ftmodel = null;
-				table.setModel(getFeatureTableModel());
-				featureController.showInfo("Funcionalidade salva com sucesso!");
-				clearFields();
+	public Action getNewFeature() {
+		return new AbstractAction("Novo") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				createNewFeature();
 			}
-		} else {
-			/* se a variável feature não for nula, trata-se de um update */
-			feature.setName(featureNameField.getText());
-			feature.setDescription(featureDescriptionArea.getText());
-
-			updateFeature(feature);
-			clearFields();
-			ftmodel = null;
-			table.setModel(getFeatureTableModel());
-		}
+		};
 	}
 
+	private void createNewFeature() {
+		clearFields();
+		feature = null;
+		updateControls(Boolean.TRUE);
+		getFeatureDetailsPane().setVisible(true);
+	}
+
+	private Component getFeatureDetailsPane() {
+		if (featureDetailsPane == null) {
+			featureNameField = new ApplicationTextField();
+			featureDescriptionArea = new JTextArea();
+			featureDescriptionArea.setLineWrap(true);
+			pluginOfFeature = new ApplicationTextField("");
+			pluginOfFeature.setEditable(false);
+
+			featureDetailsPane = new JPanel(new MigLayout("ins 0", "[right][grow][]", "[][][grow][]"));
+
+			featureDetailsPane.add(new JLabel("Nome:"));
+			featureDetailsPane.add(featureNameField, "grow, wrap");
+
+			featureDetailsPane.add(new JLabel("Descrição:"), "ay top");
+			featureDetailsPane.add(new JScrollPane(featureDescriptionArea), "h 60:60:60, spanx, grow, wrap");
+
+			featureDetailsPane.add(new JLabel("Plugin:"));
+			featureDetailsPane.add(pluginOfFeature, "grow, split 2");
+			featureDetailsPane.add(new JButton(getPluginChooserDialog()), "wrap");
+
+			featureDetailsPane.setVisible(false);
+		}
+		return featureDetailsPane;
+	}
+
+	private Action getPluginChooserDialog() {
+		return new AbstractAction("...") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				pluginChooser = new PluginChooserDialog();
+				pluginChooser.setVisible(true);
+				pluginOfFeature.setText(pluginChooser.getSelectedPlugin().getName());
+			}
+		};
+	}
+
+	private void clearFields() {
+		getFeatureDetailsPane().setVisible(false);
+		featureNameField.setText(null);
+		featureDescriptionArea.setText(null);
+		pluginOfFeature.setText("-");
+	}
+	
 	private void deleteFeature() {
 		final int tableIndex = table.getSelectedRow();
 
@@ -272,29 +275,40 @@ public class FeatureDialog extends JDialog {
 			featureController.showInfo("Funcionalidade removida com sucesso");
 		}
 	}
-
-	private void updateFeature(final Feature f) {
-		featureController.update(f.getId(), f.getName(), f.getDescription());
+	
+	private FeatureTableModel getFeatureTableModel() {
+		if (ftmodel == null) {
+			ftmodel = new FeatureTableModel(featureController.getAllFeatures());
+		}
+		return ftmodel;
 	}
 
-	private void fillFields() {
-		final int tableIndex = table.getSelectedRow();
-		if (tableIndex >= 0) {
-			feature = ftmodel.getFeature(tableIndex);
-			featureNameField.setText(feature.getName());
-			featureDescriptionArea.setText(feature.getDescription());
-			pluginOfFeature.setText(feature.getPlugin().getName());
+	private void onClickSave() {
+		/* Se a a variável feature for null, trata-se de um insert */
+		if (feature == null) {
+			if (pluginChooser.getSelectedPlugin() == null)
+				featureController.showInfo("Informe o Plugin ao qual esta Funcionalidade pertence");
+			else {
+				featureController.save(featureNameField.getText(), featureDescriptionArea.getText(), pluginChooser.getSelectedPlugin());
+				ftmodel = null;
+				table.setModel(getFeatureTableModel());
+				featureController.showInfo("Funcionalidade salva com sucesso!");
+				clearFields();
+			}
+		} else {
+			/* se a variável feature não for nula, trata-se de um update */
+			feature.setName(featureNameField.getText());
+			feature.setDescription(featureDescriptionArea.getText());
+			feature.setPlugin(pluginChooser.getSelectedPlugin());
+			featureController.update(feature);
+
+			clearFields();
+			ftmodel = null;
+			table.setModel(getFeatureTableModel());
 		}
 	}
-
-	private void newFeature() {
-		clearFields();
-		feature = null;
-	}
-
-	private void clearFields() {
-		featureNameField.setText("");
-		featureDescriptionArea.setText("");
-		pluginOfFeature.setText("-");
+	
+	public void setTable(JTable table) {
+		this.table = table;
 	}
 }
