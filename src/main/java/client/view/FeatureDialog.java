@@ -5,6 +5,9 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 
 import javax.swing.AbstractAction;
@@ -20,10 +23,12 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableRowSorter;
 
 import client.controller.FeatureController;
 import client.util.Util;
 import client.view.components.ApplicationTextField;
+import client.view.components.TextRowFilter;
 import client.view.tablemodels.FeatureTableModel;
 import client.view.tablemodels.PluginTableModel;
 import common.model.Feature;
@@ -69,12 +74,6 @@ public class FeatureDialog extends JDialog {
 	}
 
 	private Container createContentPane() {
-
-		searchFeatureField = new ApplicationTextField();
-
-		//table = new JTable(getFeatureTableModel());
-		//table.addMouseListener(createMouseListenerForTable());
-
 		featureNameField = new ApplicationTextField();
 
 		featureDescriptionArea = new JTextArea();
@@ -101,7 +100,7 @@ public class FeatureDialog extends JDialog {
 		});
 
 		JPanel contentPane = new JPanel(new MigLayout("ins 10", "[right][grow][right][grow]", "[][grow][][grow][][]"));
-		contentPane.add(searchFeatureField, "spanx 4, grow, split 2");
+		contentPane.add(getSearchFeatureField(), "spanx 4, grow, split 2");
 		contentPane.add(newfeatureBtn, "wrap, sg btn1");
 		contentPane.add(new JScrollPane(getTable()), "grow, wrap, spanx");
 		contentPane.add(new JLabel("Nome:"));
@@ -114,6 +113,37 @@ public class FeatureDialog extends JDialog {
 		contentPane.add(createControlPanel(), "spanx, ax right");
 
 		return contentPane;
+	}
+
+	
+	
+	public ApplicationTextField getSearchFeatureField() {
+		if (searchFeatureField == null) {
+			searchFeatureField = new ApplicationTextField();
+			searchFeatureField.addKeyListener(createSearchFeatureListener());
+		}
+		
+		return searchFeatureField;
+	}
+
+	private KeyListener createSearchFeatureListener() {
+		return new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent event) {
+				super.keyReleased(event);
+				String text = searchFeatureField.getText();
+				if (text.length() == 0) {
+					((TableRowSorter) getTable().getRowSorter()).setRowFilter(null);
+				} else {
+					((TableRowSorter) getTable().getRowSorter())
+							.setRowFilter(new TextRowFilter(text, FeatureTableModel.getSearchableColumns()));
+				}
+			}
+		};
+	}
+
+	public void setSearchFeatureField(ApplicationTextField searchFeatureField) {
+		this.searchFeatureField = searchFeatureField;
 	}
 
 	public JTable getTable() {
