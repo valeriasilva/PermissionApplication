@@ -97,7 +97,7 @@ public class FeatureTableModel extends AbstractTableModel {
 		fireTableRowsDeleted(idx, idx);
 	}
 
-	public void addListaDeFeatures(final List<Feature> features) {
+	public void addFeatures(final List<Feature> features) {
 		final int idx = getRowCount();
 		data.addAll(features);
 		fireTableRowsInserted(idx, idx + features.size());

@@ -15,7 +15,7 @@ public class ClientTest {
 		System.out.println("Teste: conexão Servidor RMI. Retorna falha caso o servidor não esteja executando.");
 		
 		try {
-			Assert.assertNotNull(ServiceLocator.getServer());
+			Assert.assertNotNull(ServiceLocator.getService());
 		} catch (RemoteException e) {
 			System.out.println("Não foi possível estabelecer conexão com o servidor RMI "+ e.getStackTrace());
 		}

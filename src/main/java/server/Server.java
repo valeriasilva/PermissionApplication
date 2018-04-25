@@ -1,5 +1,6 @@
 package server;
 
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -8,7 +9,7 @@ import java.util.List;
 import common.model.Feature;
 import common.model.Plugin;
 import common.model.User;
-import common.service.ServerInterface;
+import common.service.PermissionServiceInterface;
 import common.service.ServiceException;
 import server.dao.FeatureDAO;
 import server.dao.PermissionDAO;
@@ -16,7 +17,7 @@ import server.dao.PluginDAO;
 import server.dao.ServerException;
 import server.dao.UserDAO;
 
-public class Server implements ServerInterface {
+public class Server implements PermissionServiceInterface {
 
 	PluginDAO pluginDao;
 	FeatureDAO featureDao;
@@ -24,11 +25,11 @@ public class Server implements ServerInterface {
 
 	public static void main(final String args[]) {
 		try {
-			final ServerInterface server = new Server();
-			UnicastRemoteObject.exportObject(server, ServerInterface.RMI_PORT);
+			final PermissionServiceInterface server = new Server();
+			UnicastRemoteObject.exportObject(server, PermissionServiceInterface.RMI_PORT);
 
-			final Registry registry = LocateRegistry.createRegistry(ServerInterface.RMI_PORT);
-			registry.rebind(ServerInterface.REFERENCE_NAME, server);
+			final Registry registry = LocateRegistry.createRegistry(PermissionServiceInterface.RMI_PORT);
+			registry.rebind(PermissionServiceInterface.REFERENCE_NAME, server);
 
 			System.out.println("Server ready");
 		} catch (final Exception e) {
@@ -236,7 +237,7 @@ public class Server implements ServerInterface {
 	 *             .
 	 */
 	@Override
-	public List<Feature> findFeaturesPermittedFor(final Long userId) throws ServiceException {
+	public List<Feature> getPermissionsByUser(final User user) throws ServiceException {
 		try {
 			permissionDao = new PermissionDAO();
 		} catch (ServerException e1) {
@@ -244,7 +245,7 @@ public class Server implements ServerInterface {
 					"Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
 		}
 		try {
-			return permissionDao.findFeaturesPermittedForUser(userId);
+			return permissionDao.findFeaturesPermittedForUser(user);
 		} catch (ServerException e) {
 			throw new ServiceException("Falha ao pesquisar usuários. " + e.getMessage());
 		}
@@ -323,6 +324,15 @@ public class Server implements ServerInterface {
 			permissionDao.savePermission(userId, featureId);
 		} catch (ServerException e) {
 			throw new ServiceException("Falha ao salvar permissão. " + e.getMessage());
+		}
+	}
+
+	@Override
+	public void generateReport() throws ServiceException, RemoteException {
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			throw new ServiceException("Falha na geração do relatório");
 		}
 	}
 

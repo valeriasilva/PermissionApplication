@@ -26,7 +26,7 @@ public class FeatureController extends Controller {
 		feature.getPlugin().setId(idPlugin);
 
 		try {
-			ServiceLocator.getServer().saveFeature(feature);
+			ServiceLocator.getService().saveFeature(feature);
 		} catch (final ServiceException e) {
 			showError(parentComponent, "Problemas na tentativa de adicionar funcionalidade. \n" + e.getMessage());
 		} catch (RemoteException e) {
@@ -42,7 +42,7 @@ public class FeatureController extends Controller {
 		feature.setDescription(description);
 
 		try {
-			ServiceLocator.getServer().updateFeature(feature);
+			ServiceLocator.getService().updateFeature(feature);
 		} catch (final ServiceException e) {
 			showError(parentComponent, "Problemas na tentativa de atualizar funcionalidade. \n" + e.getMessage());
 		} catch (RemoteException e) {
@@ -52,7 +52,7 @@ public class FeatureController extends Controller {
 
 	public List<Feature> getAllFeatures() {
 		try {
-			return ServiceLocator.getServer().findAllFeatures();
+			return ServiceLocator.getService().findAllFeatures();
 		} catch (final ServiceException e) {
 			showError(parentComponent, "Problemas na tentativa de listar funcionalidades. \n" + e.getMessage());
 		} catch (RemoteException e) {
@@ -63,7 +63,7 @@ public class FeatureController extends Controller {
 
 	public void delete(final long id) {
 		try {
-			ServiceLocator.getServer().deleteFeature(id);
+			ServiceLocator.getService().deleteFeature(id);
 		} catch (final ServiceException e) {
 			showError(parentComponent, "Problemas na tentativa de excluir funcionalidade. \n" + e.getMessage());
 		} catch (RemoteException e) {
@@ -73,7 +73,7 @@ public class FeatureController extends Controller {
 
 	public List<Feature> searchFeatureNotPermittedByName(final String name, final Long userId) {
 		try {
-			return ServiceLocator.getServer().findFeatureNotPermittedByName(name, userId);
+			return ServiceLocator.getService().findFeatureNotPermittedByName(name, userId);
 		} catch (final ServiceException e) {
 			showError(parentComponent,
 					"Problemas na tentativa de buscar funcionalidades permitidas. \n" + e.getMessage());
@@ -85,7 +85,7 @@ public class FeatureController extends Controller {
 
 	public List<Feature> getFeaturesByPlugin(final Long idPlugin) {
 		try {
-			return ServiceLocator.getServer().findFeaturesByPlugin(idPlugin);
+			return ServiceLocator.getService().findFeaturesByPlugin(idPlugin);
 		} catch (final ServiceException e) {
 			showError(parentComponent,
 					"Problemas na tentativa de buscar funcionalidades por plugin. \n" + e.getMessage());
@@ -98,7 +98,7 @@ public class FeatureController extends Controller {
 
 	public List<Feature> listFeaturesSelectedUserHasNoPermission(final Long userId) {
 		try {
-			return ServiceLocator.getServer().findFeatureUserHasNoPermission(userId);
+			return ServiceLocator.getService().findFeatureUserHasNoPermission(userId);
 		} catch (final ServiceException e) {
 			showError(parentComponent,
 					"Problemas na tentativa de listar funcionalidades sem permissão atribuída. \n" + e.getMessage());

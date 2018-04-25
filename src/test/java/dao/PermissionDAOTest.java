@@ -75,7 +75,8 @@ public class PermissionDAOTest {
 		insertPermissionInDataBase();
 
 		try {
-			Assert.assertNotNull(new PermissionDAO().findFeaturesPermittedForUser((long) userIdGenerated).get(0));
+			Assert.assertNotNull(new PermissionDAO()
+					.findFeaturesPermittedForUser(new UserDAO().getUserById((long) userIdGenerated)).get(0));
 		} catch (ServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -86,7 +87,8 @@ public class PermissionDAOTest {
 		System.out.println("Teste: Insert de Permissão");
 
 		try {
-			permissionIdGenerated = new PermissionDAO().savePermission((long) userIdGenerated, (long) featureIdGenerated);
+			permissionIdGenerated = new PermissionDAO().savePermission((long) userIdGenerated,
+					(long) featureIdGenerated);
 		} catch (ServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
