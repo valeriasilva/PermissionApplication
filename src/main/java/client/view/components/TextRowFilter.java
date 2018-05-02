@@ -25,8 +25,6 @@ public final class TextRowFilter extends RowFilter<Object, Object> {
 				return true;
 			}
 		}
-
 		return false;
 	}
-
 }

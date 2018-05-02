@@ -9,17 +9,21 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.rmi.RemoteException;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -28,7 +32,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
 import client.controller.ApplicationController;
+import client.controller.ApplicationControllerTask;
 import client.controller.PermissionController;
+import client.controller.TaskCore;
 import client.controller.UserController;
 import client.util.Util;
 import client.view.components.ApplicationTextField;
@@ -37,10 +43,9 @@ import client.view.tablemodels.FeatureTableModel;
 import client.view.tablemodels.UserTableModel;
 import common.model.Feature;
 import common.model.User;
-import common.service.ServiceException;
 import net.miginfocom.swing.MigLayout;
 
-public class PermissionApplication extends JFrame {
+public class PermissionApplication extends JFrame implements ActionListener, PropertyChangeListener {
 
 	private static final int MIN_HEIGHT = 600;
 	private static final int MIN_WIDTH = (int) (MIN_HEIGHT * Util.GOLDEN_RATIO);
@@ -55,6 +60,8 @@ public class PermissionApplication extends JFrame {
 	private JTable featuresPermissionTable;
 	private JButton btnIncluir;
 	private JButton btnExcluirPermission;
+	private JProgressBar progressBar;
+	JLabel progressLabel;
 
 	public static void main(final String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -143,11 +150,59 @@ public class PermissionApplication extends JFrame {
 		reportMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				try {
-					applicationController.generateReport();
-				} catch (RemoteException | ServiceException e) {
-					applicationController.showError(null, "Falha na operação de criação de relatório");
-				}
+				ProgressDialog progressDialog = new ProgressDialog();
+
+				TaskCore<Void> core = new TaskCore<Void>() {
+					@Override
+					public Void run() throws Exception {
+						applicationController.generateReport();
+
+						return null;
+					}
+				};
+
+				Thread secondsCounter = new Thread() {
+					public void run() {
+						int seconds = 0;
+						while(true) {
+							try {
+								progressDialog.getCounter().setText("Tempo decorrido: "+(++seconds));
+								sleep(1000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				};
+
+				ApplicationControllerTask task = new ApplicationControllerTask(core);
+
+				task.addPropertyChangeListener(
+						new PropertyChangeListener() {
+							public  void propertyChange(PropertyChangeEvent evt) {
+								System.out.println(evt.getNewValue());
+
+								if(evt.getNewValue().equals(100)) {
+									secondsCounter.interrupt();
+									progressDialog.setVisible(false);
+								}
+							}
+						});
+ 
+				task.execute();		
+				secondsCounter.start();
+				progressDialog.setVisible(true);
+
+				//				try {
+				//					task.get();  
+				//				
+				//				} catch (InterruptedException e) {
+				//					// TODO Auto-generated catch block
+				//					e.printStackTrace();
+				//				} catch (ExecutionException e) {
+				//					// TODO Auto-generated catch block
+				//					e.printStackTrace();
+				//				}
 			}
 		});
 
@@ -160,7 +215,6 @@ public class PermissionApplication extends JFrame {
 		final JMenuBar menuBar = new JMenuBar();
 		menuBar.add(fileMenu);
 		setJMenuBar(menuBar);
-
 	}
 
 	private Component createControlPane() {
@@ -194,7 +248,7 @@ public class PermissionApplication extends JFrame {
 					((TableRowSorter) getUsersTable().getRowSorter()).setRowFilter(null);
 				} else {
 					((TableRowSorter) getUsersTable().getRowSorter())
-							.setRowFilter(new TextRowFilter(text, UserTableModel.getSearchableColumns()));
+					.setRowFilter(new TextRowFilter(text, UserTableModel.getSearchableColumns()));
 				}
 			}
 		};
@@ -301,14 +355,24 @@ public class PermissionApplication extends JFrame {
 	}
 
 	private void updateFeaturesTable() {
-
 		getFeatureTableModel().clear();
 		if (getUsersTable().getSelectedRowCount() < 1) {
 			return;
 		}
-
 		final User selectedUser = getUserTableModel().getUser(getUsersTable().getSelectedRow());
 		List<Feature> permissions = permissionController.getFeaturesByUser(selectedUser);
 		getFeatureTableModel().addFeatures(permissions);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		// TODO Auto-generated method stub
+
 	}
 }
