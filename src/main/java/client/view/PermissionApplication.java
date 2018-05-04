@@ -9,10 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -46,13 +43,11 @@ import common.model.Feature;
 import common.model.User;
 import net.miginfocom.swing.MigLayout;
 
-public class PermissionApplication extends JFrame implements ActionListener, PropertyChangeListener {
+public class PermissionApplication extends JFrame {
 
 	private static final int MIN_HEIGHT = 600;
 	private static final int MIN_WIDTH = (int) (MIN_HEIGHT * Util.GOLDEN_RATIO);
 	private static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_HEIGHT);
-	
-	private static final int ONE_SECOND = 1000;
 
 	private final ApplicationController applicationController;
 	private final UserController userController;
@@ -65,7 +60,6 @@ public class PermissionApplication extends JFrame implements ActionListener, Pro
 	private JButton btnExcluirPermission;
 	private JProgressBar progressBar;
 	JLabel progressLabel;
-	private long startTime;
 
 	public static void main(final String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -151,50 +145,7 @@ public class PermissionApplication extends JFrame implements ActionListener, Pro
 		});
 
 		final JMenuItem reportMenuItem = new JMenuItem("Emitir relatório");
-		reportMenuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				ProgressDialog progressDialog = new ProgressDialog();
-				Timer timer = new Timer(ONE_SECOND, new ActionListener() {
-			          public void actionPerformed(ActionEvent e) {
-			              progressDialog.repaintTime(startTime);
-			          }
-			       });
-
-				TaskCore<Void> core = new TaskCore<Void>() {
-					@Override
-					public Void run() throws Exception {
-						applicationController.generateReport();
-						return null;
-					}
-				};
-
-				ApplicationControllerTask task = new ApplicationControllerTask(core);
-
-				task.addPropertyChangeListener(
-						new PropertyChangeListener() {
-							public  void propertyChange(PropertyChangeEvent evt) {
-								System.out.println(evt.getNewValue());
-
-								if(evt.getNewValue().equals(100)) {
-									timer.stop();
-									progressDialog.setVisible(false);
-									//Log último valor do Label
-									System.out.println("Tempo decorrido:"+progressDialog.getCounter().getText());
-								}
-							}
-						});
- 
-				task.execute();	
-				
-				timer.setInitialDelay(ONE_SECOND);
-				timer.start(); 
-				startTime = System.currentTimeMillis();
-				//secondsCounter.start();
-				
-				progressDialog.setVisible(true);
-			}
-		});
+		reportMenuItem.addActionListener(generateReportAction());
 
 		final JMenu fileMenu = new JMenu("Arquivo");
 		fileMenu.add(pluginsMenuItem);
@@ -205,6 +156,15 @@ public class PermissionApplication extends JFrame implements ActionListener, Pro
 		final JMenuBar menuBar = new JMenuBar();
 		menuBar.add(fileMenu);
 		setJMenuBar(menuBar);
+	}
+
+	private ActionListener generateReportAction() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				generateReport();
+			}
+		};
 	}
 
 	private Component createControlPane() {
@@ -238,7 +198,7 @@ public class PermissionApplication extends JFrame implements ActionListener, Pro
 					((TableRowSorter) getUsersTable().getRowSorter()).setRowFilter(null);
 				} else {
 					((TableRowSorter) getUsersTable().getRowSorter())
-					.setRowFilter(new TextRowFilter(text, UserTableModel.getSearchableColumns()));
+							.setRowFilter(new TextRowFilter(text, UserTableModel.getSearchableColumns()));
 				}
 			}
 		};
@@ -354,15 +314,34 @@ public class PermissionApplication extends JFrame implements ActionListener, Pro
 		getFeatureTableModel().addFeatures(permissions);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+	private void generateReport() {
 
-	}
+		ProgressDialog progressDialog = new ProgressDialog(System.currentTimeMillis());
 
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		// TODO Auto-generated method stub
+		Timer timer = new Timer((int) Util.SEC, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				progressDialog.repaintTime();
+			}
+		});
 
+		TaskCore<Void> core = new TaskCore<Void>() {
+
+			@Override
+			public Void run() throws Exception {
+				applicationController.generateReport();
+				return null;
+			}
+
+			@Override
+			public void done() {
+				progressDialog.setVisible(false);
+				progressDialog.dispose();
+			}
+		};
+
+		ApplicationControllerTask<Void> task = new ApplicationControllerTask<>(core);
+		task.execute();
+		timer.start();
+		progressDialog.setVisible(true);
 	}
 }

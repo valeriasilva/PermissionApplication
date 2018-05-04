@@ -1,9 +1,9 @@
 package client.view;
 
+import java.awt.Color;
 import java.awt.Container;
-import java.awt.Dimension;
-import java.util.Calendar;
 
+import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -14,57 +14,43 @@ import net.miginfocom.swing.MigLayout;
 
 public class ProgressDialog extends JDialog {
 
-	private static final int MIN_HEIGHT = 100;
-	private static final int MIN_WIDTH = (int) (MIN_HEIGHT * Util.GOLDEN_RATIO);
-	private static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_HEIGHT);
-
-	private JProgressBar progressBar;
 	private JLabel counter;
+	private final long startTime;
 
-	public ProgressDialog() {
+	public ProgressDialog(long startTime) {
+		super();
+		this.startTime = startTime;
 		buildGUI();
-
 	}
 
 	private void buildGUI() {
-		setTitle("Progresso ...");
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		setUndecorated(true);
 		setContentPane(createContentPane());
-		setMinimumSize(MIN_SIZE);
+		pack();
 		setResizable(false);
 		setModal(true);
 		setLocationRelativeTo(null);
 	}
 
 	private Container createContentPane() {
-		progressBar = new JProgressBar(0, 100);	
+
+		JProgressBar progressBar = new JProgressBar();
 		progressBar.setIndeterminate(true);
 		progressBar.setVisible(true);
 
 		counter = new JLabel("");
 
-		JPanel contentPane = new JPanel(new MigLayout("ins 10", "[]", "[][]"));
-
-		contentPane.add(progressBar, "wrap");
+		JPanel contentPane = new JPanel(new MigLayout("ins 30", "[grow]", "[][][]"));
+		contentPane.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+		contentPane.add(new JLabel("Progresso ..."), "wrap");
+		contentPane.add(progressBar, "w 200:200:200, growx, wrap");
 		contentPane.add(counter);
 
 		return contentPane;
 	}
 
-	public void repaintTime(long startTime) {
-		long diffTime = System.currentTimeMillis() - startTime;  
-		int seconds = (int)(diffTime / 1000 % 60);  
-		int minutes = (int)(diffTime / 60000 % 60);  
-		int hours = (int)(diffTime / 3600000);  
-		String s = String.format("%d:%02d:%02d", hours, minutes, seconds);  
-		counter.setText(s); 
-//
-//		Calendar now = Calendar.getInstance();
-//		int h = now.get(Calendar.HOUR_OF_DAY);
-//		int m = now.get(Calendar.MINUTE);
-//		int s = now.get(Calendar.SECOND);
-//
-//		counter.setText(String.format("%1$tH:%1$tM:%1$tS", now));
+	public void repaintTime() {
+		counter.setText(Util.getElapsedTime(startTime));
 	}
 
 	public JLabel getCounter() {
