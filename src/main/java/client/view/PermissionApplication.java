@@ -27,6 +27,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.Timer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
@@ -50,6 +51,8 @@ public class PermissionApplication extends JFrame implements ActionListener, Pro
 	private static final int MIN_HEIGHT = 600;
 	private static final int MIN_WIDTH = (int) (MIN_HEIGHT * Util.GOLDEN_RATIO);
 	private static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_HEIGHT);
+	
+	private static final int ONE_SECOND = 1000;
 
 	private final ApplicationController applicationController;
 	private final UserController userController;
@@ -62,6 +65,7 @@ public class PermissionApplication extends JFrame implements ActionListener, Pro
 	private JButton btnExcluirPermission;
 	private JProgressBar progressBar;
 	JLabel progressLabel;
+	private long startTime;
 
 	public static void main(final String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -151,27 +155,17 @@ public class PermissionApplication extends JFrame implements ActionListener, Pro
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				ProgressDialog progressDialog = new ProgressDialog();
+				Timer timer = new Timer(ONE_SECOND, new ActionListener() {
+			          public void actionPerformed(ActionEvent e) {
+			              progressDialog.repaintTime(startTime);
+			          }
+			       });
 
 				TaskCore<Void> core = new TaskCore<Void>() {
 					@Override
 					public Void run() throws Exception {
 						applicationController.generateReport();
-
 						return null;
-					}
-				};
-
-				Thread secondsCounter = new Thread() {
-					public void run() {
-						int seconds = 0;
-						while(true) {
-							try {
-								progressDialog.getCounter().setText("Tempo decorrido: "+(++seconds));
-								sleep(1000);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
 					}
 				};
 
@@ -183,26 +177,22 @@ public class PermissionApplication extends JFrame implements ActionListener, Pro
 								System.out.println(evt.getNewValue());
 
 								if(evt.getNewValue().equals(100)) {
-									secondsCounter.interrupt();
+									timer.stop();
 									progressDialog.setVisible(false);
+									//Log último valor do Label
+									System.out.println("Tempo decorrido:"+progressDialog.getCounter().getText());
 								}
 							}
 						});
  
-				task.execute();		
-				secondsCounter.start();
+				task.execute();	
+				
+				timer.setInitialDelay(ONE_SECOND);
+				timer.start(); 
+				startTime = System.currentTimeMillis();
+				//secondsCounter.start();
+				
 				progressDialog.setVisible(true);
-
-				//				try {
-				//					task.get();  
-				//				
-				//				} catch (InterruptedException e) {
-				//					// TODO Auto-generated catch block
-				//					e.printStackTrace();
-				//				} catch (ExecutionException e) {
-				//					// TODO Auto-generated catch block
-				//					e.printStackTrace();
-				//				}
 			}
 		});
 
