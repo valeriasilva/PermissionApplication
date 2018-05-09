@@ -3,11 +3,13 @@ package client.controller;
 import java.awt.Component;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import client.service.ServiceLocator;
 import common.model.User;
 import common.service.ServiceException;
+import common.util.Caching;
 
 public class UserController extends Controller {
 
@@ -16,6 +18,10 @@ public class UserController extends Controller {
 	public UserController(final Component parentComponent) {
 		super();
 		this.parentComponent = parentComponent;
+	}
+
+	public UserController() {
+		this(null);
 	}
 
 	public List<User> listUsers() {
@@ -34,18 +40,15 @@ public class UserController extends Controller {
 		return listOfUsers;
 	}
 
-	public List<User> listUsersByName(final String name) {
-
-		List<User> listOfUsers = new ArrayList<User>();
-
+	public User listUserByName(final String name) {
 		try {
-			listOfUsers = ServiceLocator.getService().getUsersByName(name);
-			return listOfUsers;
+			return ServiceLocator.getService().getUserByName(name);
 		} catch (final ServiceException e) {
 			showError(parentComponent, "Problemas ao listar usuários pelo nome" + e.getMessage());
 		} catch (RemoteException e) {
 			showError(parentComponent, "Problemas ao conectar com o servidor." + e.getMessage());
 		}
-		return listOfUsers;
+		return null;
 	}
+
 }

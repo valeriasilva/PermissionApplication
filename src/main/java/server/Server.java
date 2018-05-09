@@ -51,7 +51,7 @@ public class Server implements PermissionServiceInterface {
 	}
 
 	@Override
-	public List<User> getUsersByName(final String name) throws ServiceException {
+	public User getUserByName(final String name) throws ServiceException {
 		UserDAO userDao;
 		try {
 			userDao = new UserDAO();

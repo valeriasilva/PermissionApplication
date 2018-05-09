@@ -6,8 +6,8 @@ public class UserSQL {
 		return "SELECT * FROM User_";
 	}
 
-	public static String findUsersByNameSql() {
-		return findUsersSql() + " WHERE fullname LIKE %?%";
+	public static String findUserByNameSql() {
+		return findUsersSql() + " WHERE upper(fullname) = ?";
 	}
 
 	public static String saveUserSql() {

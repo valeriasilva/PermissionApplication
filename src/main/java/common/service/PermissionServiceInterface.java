@@ -13,7 +13,7 @@ public interface PermissionServiceInterface extends Remote {
 	/** nome para referenciar remotamente o servidor */
 	String REFERENCE_NAME = "Server";
 
-	int RMI_PORT = 1099;
+	int RMI_PORT = 1098;
 
 
 	/**
@@ -191,7 +191,7 @@ public interface PermissionServiceInterface extends Remote {
 	 * 			Exceção ocorrida por causa de algum problema de comunicação ou
 	 *          situação não tratada adequadamente.
 	 */
-	List<User> getUsersByName(final String name) throws ServiceException, RemoteException;
+	User getUserByName(final String name) throws ServiceException, RemoteException;
 
 
 	/**

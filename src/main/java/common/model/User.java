@@ -2,7 +2,9 @@ package common.model;
 
 import java.io.Serializable;
 
-public class User implements Serializable {
+import common.util.CacheElement;
+
+public class User implements Serializable, CacheElement {
 
 	/**
 	 * 
@@ -58,6 +60,11 @@ public class User implements Serializable {
 
 	public void setCurrentManagement(final String currentManagement) {
 		this.currentManagement = currentManagement;
+	}
+
+	@Override
+	public String getKey() {
+		return getFullname();
 	}
 
 }

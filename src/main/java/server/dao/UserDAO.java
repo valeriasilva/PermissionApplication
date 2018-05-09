@@ -7,12 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import common.model.User;
+import common.util.Caching;
 import server.dao.sql.UserSQL;
 
 public class UserDAO extends GenericDAO {
 
+	private final Caching<User> usersCache;
+
 	public UserDAO() throws ServerException {
 		super();
+		this.usersCache = new Caching<>();
 	}
 
 	public List<User> findUsers() throws ServerException {
@@ -40,18 +44,24 @@ public class UserDAO extends GenericDAO {
 		return users;
 	}
 
-	public List<User> findUsersByName(final String name) throws ServerException {
+	public User findUsersByName(final String name) throws ServerException {
+		
+		User user = usersCache.getElement(name);
+		if (user != null) {
+			System.out.println("Retornado da cache: "+user.getFullname());
+			return user;
+		}
 
-		final List<User> users = new ArrayList<>();
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 
 		try {
-			stmt = getConnection().prepareStatement(UserSQL.findUsersByNameSql());
-			stmt.setString(1, name);
+			stmt = getConnection().prepareStatement(UserSQL.findUserByNameSql());
+			stmt.setString(1, name.toUpperCase());
 			rs = stmt.executeQuery();
-			while (rs.next()) {
-				users.add(buildUser(rs));
+			if (rs.next()) {
+				user = buildUser(rs);
+				usersCache.cacheElement(user);
 			}
 		} catch (SQLException e1) {
 			e1.printStackTrace();
@@ -65,7 +75,7 @@ public class UserDAO extends GenericDAO {
 				e2.printStackTrace();
 			}
 		}
-		return users;
+		return user;
 	}
 
 	public int saveUser(final User user) throws ServerException {
