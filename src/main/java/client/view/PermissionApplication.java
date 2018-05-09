@@ -147,15 +147,29 @@ public class PermissionApplication extends JFrame {
 		final JMenuItem reportMenuItem = new JMenuItem("Emitir relatório");
 		reportMenuItem.addActionListener(generateReportAction());
 
+		JMenuItem manageFilesItem = new JMenuItem("Pesquisar Arquivos");
+		manageFilesItem.addActionListener(manageFilesAction());
+
 		final JMenu fileMenu = new JMenu("Arquivo");
 		fileMenu.add(pluginsMenuItem);
 		fileMenu.add(mntmFuncionalidades);
 		fileMenu.add(reportMenuItem);
+		fileMenu.add(manageFilesItem);
 		fileMenu.add(mntmSair);
 
 		final JMenuBar menuBar = new JMenuBar();
 		menuBar.add(fileMenu);
 		setJMenuBar(menuBar);
+	}
+
+	private ActionListener manageFilesAction() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FileWindow window = new FileWindow();
+				window.setVisible(true);
+			}
+		};
 	}
 
 	private ActionListener generateReportAction() {

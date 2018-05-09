@@ -7,6 +7,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 import common.model.Feature;
+import common.model.File;
 import common.model.Plugin;
 import common.model.User;
 import common.service.PermissionServiceInterface;
@@ -334,6 +335,18 @@ public class Server implements PermissionServiceInterface {
 		} catch (InterruptedException e) {
 			throw new ServiceException("Falha na geração do relatório");
 		}
+	}
+
+	@Override
+	public List<File> getFileByNamePart(String fileNamePart) throws ServiceException, RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public File getFileByName(String fileName) throws ServiceException, RemoteException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -36,7 +36,6 @@ public class UserDAO extends GenericDAO {
 			try {
 				rs.close();
 				stmt.close();
-				getConnection().close();
 			} catch (SQLException e2) {
 				e2.printStackTrace();
 			}
@@ -45,10 +44,10 @@ public class UserDAO extends GenericDAO {
 	}
 
 	public User findUsersByName(final String name) throws ServerException {
-		
+
 		User user = usersCache.getElement(name);
 		if (user != null) {
-			System.out.println("Retornado da cache: "+user.getFullname());
+			System.out.println("Retornado da cache: " + user.getFullname());
 			return user;
 		}
 
@@ -70,7 +69,6 @@ public class UserDAO extends GenericDAO {
 			try {
 				rs.close();
 				stmt.close();
-				getConnection().close();
 			} catch (SQLException e2) {
 				e2.printStackTrace();
 			}
@@ -102,7 +100,6 @@ public class UserDAO extends GenericDAO {
 			try {
 				rs.close();
 				stmt.close();
-				getConnection().close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
