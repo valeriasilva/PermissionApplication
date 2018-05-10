@@ -16,9 +16,9 @@ public class Caching<T extends CacheElement> {
 	}
 
 	public void cacheElement(T element) {
-		// synchronized (elements) {
-		elements.put(element.getKey().toUpperCase(), element);
-		// }
+		synchronized (elements) {
+			elements.put(element.getKey().toUpperCase(), element);
+		}
 	}
 
 	public void unCacheElement(String key) {
