@@ -15,8 +15,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,8 +23,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.text.Text;
 
 public class FileWindow extends JFrame {
 
@@ -85,15 +81,17 @@ public class FileWindow extends JFrame {
 
 		Button btnSearch = new Button("Buscar");
 		btnSearch.setOnAction(event -> btnSearchAction());
+		Button btnDownload = new Button("Download");
 
 		buildTable();
 
-		MigPane layout = new MigPane("ins 30","[grow][]", "[][][grow]");           
+		MigPane layout = new MigPane("ins 30","[grow][]", "[][][grow]10[]");           
 
 		layout.add(createRadioButtons(), "wrap");
 		layout.add(searchField, "grow");
 		layout.add(btnSearch, "wrap");
 		layout.add(table, "span, grow");
+		layout.add(btnDownload, " span, right");
 
 		Scene scene = new Scene(layout);
 
@@ -106,16 +104,16 @@ public class FileWindow extends JFrame {
 			public void run() {
 				if(partNameOption.isSelected()) {
 					cleanTable();
+					files = new ArrayList<>();
 					files.addAll(new FileController().searchFilesbyNamePart(searchField.getText()));
-
 					data.addAll(files);
 				}
 				else if (exactNameOption.isSelected()){
 					cleanTable();
 					file = new File();
 					file = new FileController().searchSpecificFile(searchField.getText());
-
-					data.add(file);
+					if(file != null)
+						data.add(file);
 				}
 			}
 		});
@@ -123,26 +121,30 @@ public class FileWindow extends JFrame {
 
 	private void buildTable() {
 		table = new TableView<>();
+		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		
 		TableColumn<File, String> firstNameCol = new TableColumn<>("Arquivo");
 		TableColumn<File, String> secondNameCol = new TableColumn<>("Tamanho");
+		
+		table.getColumns().add(firstNameCol);
+		table.getColumns().add(secondNameCol);
 
-		table.getColumns().addAll(firstNameCol, secondNameCol);
-
-		firstNameCol.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-		secondNameCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty().asString());
+		firstNameCol.setCellValueFactory(cell -> cell.getValue().nameProperty());
+		secondNameCol.setCellValueFactory(cell -> cell.getValue().sizeProperty().asString());
 
 		table.setItems(data);
 	}
 
 	public Node createRadioButtons() {
-		ToggleGroup t = new ToggleGroup();
+		ToggleGroup toggle = new ToggleGroup();
 
 		partNameOption = new RadioButton("Parte do nome");
-		partNameOption.setToggleGroup(t);
+		partNameOption.setToggleGroup(toggle);
+
 		exactNameOption = new RadioButton("Nome exato");
-		exactNameOption.setToggleGroup(t);
+		exactNameOption.setToggleGroup(toggle);
 		exactNameOption.setSelected(true);
-		
+
 		MigPane layout = new MigPane("","[][][][]", "[]");           
 		layout.add(partNameOption, "");
 		layout.add(exactNameOption, "");
@@ -152,8 +154,6 @@ public class FileWindow extends JFrame {
 
 	public void cleanTable() {
 		data.clear();
-		files = new ArrayList<>();
-		file = new File();
 		table.setItems(data);
 	}
 }
