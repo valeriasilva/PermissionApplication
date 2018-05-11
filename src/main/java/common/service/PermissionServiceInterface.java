@@ -313,5 +313,4 @@ public interface PermissionServiceInterface extends Remote {
 	List<File> getFileByNamePart(String fileNamePart) throws ServiceException, RemoteException;
 
 	File getFileByName(String fileName) throws ServiceException, RemoteException;
-
 }

@@ -13,6 +13,7 @@ import common.model.User;
 import common.service.PermissionServiceInterface;
 import common.service.ServiceException;
 import server.dao.FeatureDAO;
+import server.dao.FileDAO;
 import server.dao.PermissionDAO;
 import server.dao.PluginDAO;
 import server.dao.ServerException;
@@ -23,6 +24,7 @@ public class Server implements PermissionServiceInterface {
 	PluginDAO pluginDao;
 	FeatureDAO featureDao;
 	PermissionDAO permissionDao;
+	FileDAO fileDao;
 
 	public static void main(final String args[]) {
 		try {
@@ -339,14 +341,31 @@ public class Server implements PermissionServiceInterface {
 
 	@Override
 	public List<File> getFileByNamePart(String fileNamePart) throws ServiceException, RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			fileDao =  new FileDAO();
+		} catch (ServerException e1) {
+			throw new ServiceException(
+					"Não foi possível estabelecer conexão com a base de dados. \n" + e1.getMessage());
+		}
+		try {
+			return fileDao.fetchFilesByNamePart(fileNamePart);
+		} catch (ServerException e) {
+			throw new ServiceException("Falha ao buscar os Arquivos. " + e.getMessage());
+		}
 	}
 
 	@Override
 	public File getFileByName(String fileName) throws ServiceException, RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			fileDao = new FileDAO();
+		} catch (ServerException e) {
+			throw new ServiceException(
+					"Não foi possível estabelecer conexão com a base de dados. \n" + e.getMessage());
+		}
+		try {
+			return fileDao.fetchFileByExactName(fileName);
+		} catch (ServerException e) {
+			throw new ServiceException("Falha ao buscar o Arquivo. " + e.getMessage());
+		}
 	}
-
 }

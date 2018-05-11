@@ -1,15 +1,22 @@
 package client.view;
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import org.tbee.javafx.scene.layout.MigPane;
 
+import client.controller.FileController;
 import client.util.Util;
 import common.model.File;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -17,7 +24,8 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 
 public class FileWindow extends JFrame {
@@ -27,6 +35,13 @@ public class FileWindow extends JFrame {
 	private static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_HEIGHT);
 
 	private JFXPanel fxPanel;
+	private RadioButton partNameOption;
+	private RadioButton exactNameOption;
+	List<File> files;
+	private File file;
+	private TableView<File> table;
+	private final ObservableList<File> data =  FXCollections.observableArrayList();
+	private TextField searchField;
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -48,6 +63,8 @@ public class FileWindow extends JFrame {
 		setLocationRelativeTo(null);
 		setTitle("Buscar arquivos");
 		setMinimumSize(MIN_SIZE);
+		add(fxPanel);
+		pack();
 
 		Platform.runLater(new Runnable() {
 			@Override
@@ -55,24 +72,21 @@ public class FileWindow extends JFrame {
 				initFX(fxPanel);
 			}
 		});
-
-		add(fxPanel);
-		pack();
 	}
 
-	private static void initFX(JFXPanel fxPanel) {
+	private void initFX(JFXPanel fxPanel) {
 		Scene scene = createContentPane();
 		fxPanel.setScene(scene);
 	}
 
-	private static Scene createContentPane() {
+	private Scene createContentPane() {
+		files = new ArrayList<File>();
+		searchField = new TextField();
 
-
-		TextField searchField = new TextField();
 		Button btnSearch = new Button("Buscar");
+		btnSearch.setOnAction(event -> btnSearchAction());
 
-		TableView<File> table = new TableView<>();
-		table.getColumns().addAll(new TableColumn<File,String>("Arquivo"), new TableColumn<File,String>("Tamanho"));
+		buildTable();
 
 		MigPane layout = new MigPane("ins 30","[grow][]", "[][][grow]");           
 
@@ -86,17 +100,60 @@ public class FileWindow extends JFrame {
 		return scene;
 	}
 
-	private static Node createRadioButtons() {
-		
-		RadioButton partNameOption = new RadioButton();
-		RadioButton exactNameOption = new RadioButton();
+	private void btnSearchAction() {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				if(partNameOption.isSelected()) {
+					cleanTable();
+					files.addAll(new FileController().searchFilesbyNamePart(searchField.getText()));
+
+					data.addAll(files);
+				}
+				else if (exactNameOption.isSelected()){
+					cleanTable();
+					file = new File();
+					file = new FileController().searchSpecificFile(searchField.getText());
+
+					data.add(file);
+				}
+			}
+		});
+	}
+
+	private void buildTable() {
+		table = new TableView<>();
+		TableColumn<File, String> firstNameCol = new TableColumn<>("Arquivo");
+		TableColumn<File, String> secondNameCol = new TableColumn<>("Tamanho");
+
+		table.getColumns().addAll(firstNameCol, secondNameCol);
+
+		firstNameCol.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+		secondNameCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty().asString());
+
+		table.setItems(data);
+	}
+
+	public Node createRadioButtons() {
+		ToggleGroup t = new ToggleGroup();
+
+		partNameOption = new RadioButton("Parte do nome");
+		partNameOption.setToggleGroup(t);
+		exactNameOption = new RadioButton("Nome exato");
+		exactNameOption.setToggleGroup(t);
+		exactNameOption.setSelected(true);
 		
 		MigPane layout = new MigPane("","[][][][]", "[]");           
 		layout.add(partNameOption, "");
-		layout.add(new Text("Parte do nome"));
 		layout.add(exactNameOption, "");
-		layout.add(new Text("Nome exato"));
 
 		return layout;
+	}
+
+	public void cleanTable() {
+		data.clear();
+		files = new ArrayList<>();
+		file = new File();
+		table.setItems(data);
 	}
 }
