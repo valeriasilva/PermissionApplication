@@ -10,11 +10,15 @@ import org.tbee.javafx.scene.layout.MigPane;
 
 import client.controller.FileController;
 import client.util.Util;
+import client.view.components.FileTable;
 import common.model.File;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -23,6 +27,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 
 public class FileWindow extends JFrame {
 
@@ -33,34 +40,24 @@ public class FileWindow extends JFrame {
 	private JFXPanel fxPanel;
 	private RadioButton partNameOption;
 	private RadioButton exactNameOption;
-	List<File> files;
+	private List<File> files;
 	private File file;
-	private TableView<File> table;
+	private FileTable table;
 	private final ObservableList<File> data =  FXCollections.observableArrayList();
+	private ObservableList<File> numberRowsSelected;
 	private TextField searchField;
+	private Button btnSearch;
+	private Button btnDownload;
 
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				new FileWindow();
-			}
-		});
-	}
 
 	public FileWindow() {
 		buildGUI();
 	}
 
 	private void buildGUI() {
+		setTitle("Pesquisar arquivos");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		fxPanel = new JFXPanel();
-		setVisible(true);
-		setLocationRelativeTo(null);
-		setTitle("Buscar arquivos");
-		setMinimumSize(MIN_SIZE);
-		add(fxPanel);
-		pack();
 
 		Platform.runLater(new Runnable() {
 			@Override
@@ -68,6 +65,10 @@ public class FileWindow extends JFrame {
 				initFX(fxPanel);
 			}
 		});
+
+		setMinimumSize(MIN_SIZE);
+		setLocationRelativeTo(null);
+		add(fxPanel);
 	}
 
 	private void initFX(JFXPanel fxPanel) {
@@ -76,14 +77,12 @@ public class FileWindow extends JFrame {
 	}
 
 	private Scene createContentPane() {
-		files = new ArrayList<File>();
-		searchField = new TextField();
-
-		Button btnSearch = new Button("Buscar");
-		btnSearch.setOnAction(event -> btnSearchAction());
-		Button btnDownload = new Button("Download");
-
-		buildTable();
+		createSearchField();
+		btnSearch = new Button("Buscar");
+		btnSearch.setOnAction(event -> searchAction());
+		btnDownload = new Button("Download");
+		createTable();
+		bindingDownloadButton();
 
 		MigPane layout = new MigPane("ins 30","[grow][]", "[][][grow]10[]");           
 
@@ -98,39 +97,42 @@ public class FileWindow extends JFrame {
 		return scene;
 	}
 
-	private void btnSearchAction() {
-		Platform.runLater(new Runnable() {
+	private void bindingDownloadButton() {
+		numberRowsSelected = table.getSelectionModel().getSelectedItems();
+		btnDownload.disableProperty().bind(Bindings.isEmpty((numberRowsSelected)));
+	}
+
+	private void createSearchField() {
+		searchField = new TextField();
+
+		searchField.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
-			public void run() {
-				if(partNameOption.isSelected()) {
-					cleanTable();
-					files = new ArrayList<>();
-					files.addAll(new FileController().searchFilesbyNamePart(searchField.getText()));
-					data.addAll(files);
-				}
-				else if (exactNameOption.isSelected()){
-					cleanTable();
-					file = new File();
-					file = new FileController().searchSpecificFile(searchField.getText());
-					if(file != null)
-						data.add(file);
+			public void handle(KeyEvent keyEvent) {
+				if (keyEvent.getCode() == KeyCode.ENTER)  {
+					searchAction();
 				}
 			}
 		});
 	}
 
-	private void buildTable() {
-		table = new TableView<>();
-		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		
-		TableColumn<File, String> firstNameCol = new TableColumn<>("Arquivo");
-		TableColumn<File, String> secondNameCol = new TableColumn<>("Tamanho");
-		
-		table.getColumns().add(firstNameCol);
-		table.getColumns().add(secondNameCol);
+	private void searchAction() {
+		if(partNameOption.isSelected() && (!searchField.getText().equals(""))) {
+			cleanTable();
+			files = new ArrayList<>();
+			files.addAll(new FileController().searchFilesbyNamePart(searchField.getText()));
+			data.addAll(files);
+		}
+		else if (exactNameOption.isSelected() && (!searchField.getText().equals(""))){
+			cleanTable();
+			file = new File();
+			file = new FileController().searchSpecificFile(searchField.getText());
+			if(file != null)
+				data.add(file);
+		}
+	}
 
-		firstNameCol.setCellValueFactory(cell -> cell.getValue().nameProperty());
-		secondNameCol.setCellValueFactory(cell -> cell.getValue().sizeProperty().asString());
+	private void createTable() {
+		table = new FileTable();
 
 		table.setItems(data);
 	}
