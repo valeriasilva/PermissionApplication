@@ -80,9 +80,11 @@ public class FileWindow extends JFrame {
 		createSearchField();
 		btnSearch = new Button("Buscar");
 		btnSearch.setOnAction(event -> searchAction());
-		btnDownload = new Button("Download");
+		btnDownload = new Button("Baixar");
+		
 		createTable();
 		bindingDownloadButton();
+		bindingSearchButton();
 
 		MigPane layout = new MigPane("ins 30","[grow][]", "[][][grow]10[]");           
 
@@ -97,9 +99,12 @@ public class FileWindow extends JFrame {
 		return scene;
 	}
 
+	private void bindingSearchButton() {
+		btnSearch.disableProperty().bind(Bindings.equal("", searchField.textProperty()));
+	}
+
 	private void bindingDownloadButton() {
-		numberRowsSelected = table.getSelectionModel().getSelectedItems();
-		btnDownload.disableProperty().bind(Bindings.isEmpty((numberRowsSelected)));
+		btnDownload.disableProperty().bind(Bindings.isEmpty((table.getSelectionModel().getSelectedItems())));
 	}
 
 	private void createSearchField() {

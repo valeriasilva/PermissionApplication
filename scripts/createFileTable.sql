@@ -1,4 +1,5 @@
- 
+create sequence file_sequence;
+
      CREATE TABLE "CANDIDATO"."FILE_" 
    (	"ID" NUMBER(10,0), 
 	"NAME" VARCHAR2(500 BYTE), 
